@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PreVis Dashboard — Monitor machine health status, vibration, temperature, RPM, and predictive alerts in real-time.">
+  <title>PreVis — Dashboard</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <!-- Top Navbar -->
+  <nav class="top-navbar" id="top-navbar"></nav>
+
+  <!-- Sub Navigation -->
+  <div class="sub-nav" id="sub-nav"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Summary Cards -->
+    <section class="summary-cards" id="summary-cards">
+      <div class="summary-card" id="card-total">
+        <div class="summary-icon">
+          <img src="assets/total_machine_icon.png" alt="Total Machines">
+        </div>
+        <div class="summary-info">
+          <span class="summary-label">Total machine</span>
+          <span class="summary-value" id="total-count">—</span>
+          <span class="summary-sub">All systems</span>
+        </div>
+      </div>
+      <div class="summary-card card-critical" id="card-critical">
+        <div class="summary-icon">
+          <img src="assets/critical_icon.png" alt="Critical">
+        </div>
+        <div class="summary-info">
+          <span class="summary-label">Critical</span>
+          <span class="summary-value" id="critical-count">—</span>
+          <span class="summary-sub" id="critical-pct">—</span>
+        </div>
+      </div>
+      <div class="summary-card card-warning" id="card-warning">
+        <div class="summary-icon">
+          <img src="assets/warning_icon.png" alt="Warning">
+        </div>
+        <div class="summary-info">
+          <span class="summary-label">Warning</span>
+          <span class="summary-value" id="warning-count">—</span>
+          <span class="summary-sub" id="warning-pct">—</span>
+        </div>
+      </div>
+      <div class="summary-card card-healthy" id="card-healthy">
+        <div class="summary-icon">
+          <img src="assets/healthy_icon.png" alt="Healthy">
+        </div>
+        <div class="summary-info">
+          <span class="summary-label">Healthy</span>
+          <span class="summary-value" id="healthy-count">—</span>
+          <span class="summary-sub" id="healthy-pct">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Health Gauge Section -->
+    <section class="health-section">
+      <h2 class="section-title">Health Gauge</h2>
+      <div class="machine-grid" id="machine-grid">
+        <!-- Machine cards populated by JS -->
+        <div class="loading-placeholder">
+          <div class="skeleton" style="height:280px; width:100%"></div>
+          <div class="skeleton" style="height:280px; width:100%"></div>
+          <div class="skeleton" style="height:280px; width:100%"></div>
+          <div class="skeleton" style="height:280px; width:100%"></div>
+        </div>
+      </div>
+
+      <div class="view-all-container">
+        <button class="view-all-btn" id="view-all-btn">View All Machines</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="shared.js"></script>
+  <script>
+    // Auth guard
+    const user = requireAuth();
+    if (user) {
+      renderNavbar('dashboard');
+      loadDashboard();
+    }
+
+    async function loadDashboard() {
+      try {
+        // Load summary + machines in parallel
+        const [summary, machines] = await Promise.all([
+          api.get('/dashboard/summary'),
+          api.get('/machines'),
+        ]);
+
+        renderSummary(summary);
+        renderMachineGrid(machines);
+      } catch (err) {
+        console.error('Dashboard load error:', err);
+      }
+    }
+
+    function renderSummary(s) {
+      animateCount('total-count', s.total);
+      animateCount('critical-count', s.critical);
+      animateCount('warning-count', s.warning);
+      animateCount('healthy-count', s.healthy);
+      document.getElementById('critical-pct').textContent = `${s.critical_pct}% of Total`;
+      document.getElementById('warning-pct').textContent = `${s.warning_pct}% of Total`;
+      document.getElementById('healthy-pct').textContent = `${s.healthy_pct}% of Total`;
+    }
+
+    function animateCount(elementId, target) {
+      const el = document.getElementById(elementId);
+      const duration = 800;
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(ease * target);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    let showAll = false;
+
+    function renderMachineGrid(machines) {
+      const grid = document.getElementById('machine-grid');
+      const displayed = showAll ? machines : machines.slice(0, 4);
+
+      grid.innerHTML = displayed.map(m => {
+        const status = getStatusClass(m.alert_level);
+        const label = getStatusLabel(m.alert_level);
+        const img = getMachineImage(m.machine_id);
+
+        return `
+          <div class="machine-card card card-clickable" onclick="location.href='/analytics.html?machine=${m.machine_id}'">
+            <div class="machine-header">
+              <span class="machine-id">${m.machine_id}</span>
+              <span class="badge badge-${status}">
+                <span class="badge-dot"></span>
+                ${label}
+              </span>
+            </div>
+            <div class="machine-body">
+              <div class="machine-image">
+                <img src="${img}" alt="${m.model_type || m.machine_id}" loading="lazy">
+              </div>
+              <div class="machine-metrics">
+                <div class="metric">
+                  <span class="metric-label">Vibration</span>
+                  <span class="metric-value">${m.vibration ? m.vibration.toFixed(1) : '—'} <small>mm/s</small></span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Temperature</span>
+                  <span class="metric-value">${m.temperature ? m.temperature.toFixed(1) : '—'} <small>°C</small></span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">RPM</span>
+                  <span class="metric-value">${m.rpm ? formatNumber(m.rpm) : '—'}</span>
+                </div>
+              </div>
+            </div>
+            <div class="machine-sparkline">
+              <canvas id="spark-${m.machine_id}" width="300" height="50"></canvas>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Draw sparklines
+      displayed.forEach(m => drawSparkline(m));
+
+      // View all button
+      const viewBtn = document.getElementById('view-all-btn');
+      if (showAll) {
+        viewBtn.textContent = 'Show Less';
+      } else {
+        viewBtn.textContent = `View All Machines (${machines.length})`;
+      }
+
+      viewBtn.onclick = () => {
+        showAll = !showAll;
+        renderMachineGrid(machines);
+      };
+    }
+
+    async function drawSparkline(machine) {
+      const canvas = document.getElementById(`spark-${machine.machine_id}`);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      try {
+        const telemetry = await api.get(`/machines/${machine.machine_id}/telemetry?days=1`);
+        if (telemetry.length < 2) return;
+
+        // Sample every 4th point for performance
+        const sampled = telemetry.filter((_, i) => i % 4 === 0);
+        const values = sampled.map(t => t.vibration);
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const range = max - min || 1;
+
+        const w = canvas.width;
+        const h = canvas.height;
+        const padding = 4;
+
+        const color = getSparklineColor(machine.alert_level);
+
+        // Draw line
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+
+        values.forEach((v, i) => {
+          const x = padding + (i / (values.length - 1)) * (w - padding * 2);
+          const y = h - padding - ((v - min) / range) * (h - padding * 2);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Fill area
+        const lastX = padding + (w - padding * 2);
+        ctx.lineTo(lastX, h);
+        ctx.lineTo(padding, h);
+        ctx.closePath();
+        ctx.fillStyle = color.replace(')', ', 0.1)').replace('rgb', 'rgba');
+        ctx.fill();
+
+      } catch (e) {
+        // Silently skip sparkline on error
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PreVis Analytics — Detailed machine health analysis with RUL prediction, health score, and parameter trend charts.">
+  <title>PreVis — Analytics</title>
+  <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="analytics.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+</head>
+<body>
+  <!-- Top Navbar -->
+  <nav class="top-navbar" id="top-navbar"></nav>
+
+  <!-- Sub Navigation -->
+  <div class="sub-nav" id="sub-nav"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title" id="page-title">Analisis Detail</h1>
+      <div class="last-updated" id="last-updated">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+        <span id="updated-time">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Top Metrics Row -->
+    <div class="metrics-row">
+      <!-- RUL Card -->
+      <div class="metric-card rul-card">
+        <div class="metric-card-inner">
+          <div class="rul-info">
+            <span class="metric-card-label">Remaining Useful Life</span>
+            <div class="rul-value">
+              <span class="rul-number" id="rul-days">—</span>
+              <span class="rul-unit">days</span>
+            </div>
+            <span class="rul-sub">Estimated until failure</span>
+            <div class="rul-bar-container">
+              <div class="rul-bar" id="rul-bar"></div>
+              <span class="rul-bar-label" id="rul-bar-pct">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Health Score (Donut) -->
+      <div class="metric-card health-score-card">
+        <span class="metric-card-label center">Health Score</span>
+        <div class="health-gauge-wrapper">
+          <canvas id="health-gauge" width="160" height="160"></canvas>
+          <div class="health-score-text">
+            <span class="health-score-number" id="health-score">—</span>
+            <span class="health-score-max">/100</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sensor Averages -->
+      <div class="sensor-grid">
+        <div class="sensor-card">
+          <span class="sensor-label">Avg. Vibration</span>
+          <div class="sensor-value-row">
+            <span class="sensor-value" id="avg-vibration">—</span>
+            <small class="sensor-unit">mm/s</small>
+            <span class="sensor-change" id="chg-vibration"></span>
+          </div>
+        </div>
+        <div class="sensor-card">
+          <span class="sensor-label">Avg. Temperature</span>
+          <div class="sensor-value-row">
+            <span class="sensor-value" id="avg-temperature">—</span>
+            <small class="sensor-unit">°C</small>
+            <span class="sensor-change" id="chg-temperature"></span>
+          </div>
+        </div>
+        <div class="sensor-card">
+          <span class="sensor-label">Avg. Pressure</span>
+          <div class="sensor-value-row">
+            <span class="sensor-value" id="avg-pressure">—</span>
+            <small class="sensor-unit">bar</small>
+            <span class="sensor-change" id="chg-pressure"></span>
+          </div>
+        </div>
+        <div class="sensor-card">
+          <span class="sensor-label">Max. RPM</span>
+          <div class="sensor-value-row">
+            <span class="sensor-value" id="max-rpm">—</span>
+            <span class="sensor-change" id="chg-rpm"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parameter Trend Chart -->
+    <div class="chart-section card">
+      <div class="chart-header">
+        <h2 class="section-title" style="margin-bottom:0">Parameter Trend</h2>
+        <div class="chart-controls">
+          <select id="time-range" class="time-select">
+            <option value="7" selected>7D</option>
+            <option value="3">3D</option>
+            <option value="1">1D</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="trend-chart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script src="shared.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      renderNavbar('analytics');
+      loadAnalytics();
+    }
+
+    let trendChart = null;
+
+    async function loadAnalytics() {
+      const params = new URLSearchParams(window.location.search);
+      const machineId = params.get('machine') || 'M-03';
+
+      document.getElementById('page-title').textContent = `Analisis Detail  ${machineId}`;
+
+      try {
+        const [machine, telemetry] = await Promise.all([
+          api.get(`/machines/${machineId}`),
+          api.get(`/machines/${machineId}/telemetry?days=7`),
+        ]);
+
+        renderMetrics(machine);
+        renderHealthGauge(machine.failure_prob);
+        renderTrendChart(telemetry, machine);
+
+        // Time range selector
+        document.getElementById('time-range').addEventListener('change', async (e) => {
+          const days = e.target.value;
+          const newTelemetry = await api.get(`/machines/${machineId}/telemetry?days=${days}`);
+          renderTrendChart(newTelemetry, machine);
+        });
+
+      } catch (err) {
+        console.error('Analytics load error:', err);
+      }
+    }
+
+    function renderMetrics(m) {
+      // Last updated
+      document.getElementById('updated-time').textContent =
+        `Last Updated: ${formatDateTime(m.prediction_time || new Date())}`;
+
+      // RUL
+      const rul = m.rul_estimated || 0;
+      document.getElementById('rul-days').textContent = Math.round(rul);
+      const maxRul = 150;
+      const rulPct = Math.min(100, (rul / maxRul) * 100);
+      const bar = document.getElementById('rul-bar');
+      bar.style.width = `${rulPct}%`;
+      bar.className = 'rul-bar';
+      if (rulPct < 20) bar.classList.add('rul-critical');
+      else if (rulPct < 40) bar.classList.add('rul-warning');
+      else bar.classList.add('rul-healthy');
+      document.getElementById('rul-bar-pct').textContent = `${Math.round(rulPct)}%`;
+
+      // Health score
+      const score = getHealthScore(m.failure_prob);
+      document.getElementById('health-score').textContent = score;
+
+      // Averages
+      const avg = m.averages || {};
+      const chg = m.changes || {};
+      document.getElementById('avg-vibration').textContent = avg.vibration || '—';
+      document.getElementById('avg-temperature').textContent = avg.temperature || '—';
+      document.getElementById('avg-pressure').textContent = avg.pressure || '—';
+      document.getElementById('max-rpm').textContent = formatNumber(avg.max_rpm || 0);
+
+      setChange('chg-vibration', chg.vibration);
+      setChange('chg-temperature', chg.temperature);
+      setChange('chg-pressure', chg.pressure);
+      setChange('chg-rpm', chg.rpm);
+    }
+
+    function setChange(elementId, value) {
+      const el = document.getElementById(elementId);
+      if (!value || value === 0) {
+        el.textContent = '';
+        return;
+      }
+      const arrow = value > 0 ? '↑' : '↓';
+      el.textContent = `${arrow}${Math.abs(value)}%`;
+      el.className = 'sensor-change ' + (value > 0 ? 'change-up' : 'change-down');
+    }
+
+    function renderHealthGauge(failureProb) {
+      const canvas = document.getElementById('health-gauge');
+      const ctx = canvas.getContext('2d');
+      const score = getHealthScore(failureProb);
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 65;
+      const lineWidth = 14;
+
+      // Background arc
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, -0.75 * Math.PI, 1.75 * Math.PI);
+      ctx.strokeStyle = '#E5E7EB';
+      ctx.lineWidth = lineWidth;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Score arc (animated)
+      const totalAngle = 2.5 * Math.PI;
+      const scoreAngle = (score / 100) * totalAngle;
+      let color;
+      if (score >= 70) color = '#22C55E';
+      else if (score >= 40) color = '#EAB308';
+      else color = '#EF4444';
+
+      let currentAngle = 0;
+      function animateGauge() {
+        currentAngle += 0.05;
+        if (currentAngle > 1) currentAngle = 1;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Redraw background
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, -0.75 * Math.PI, 1.75 * Math.PI);
+        ctx.strokeStyle = '#E5E7EB';
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Draw score
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, -0.75 * Math.PI, -0.75 * Math.PI + scoreAngle * currentAngle);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        if (currentAngle < 1) requestAnimationFrame(animateGauge);
+      }
+      animateGauge();
+    }
+
+    function renderTrendChart(telemetry, machine) {
+      if (trendChart) trendChart.destroy();
+
+      // Sample data for chart performance (max ~200 points)
+      const step = Math.max(1, Math.floor(telemetry.length / 200));
+      const sampled = telemetry.filter((_, i) => i % step === 0);
+
+      const labels = sampled.map(t => {
+        const d = new Date(t.timestamp);
+        return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
+      });
+
+      const ctx = document.getElementById('trend-chart').getContext('2d');
+
+      // Calculate predicted failure date from RUL
+      const rul = machine.rul_estimated || 30;
+      const failureDate = new Date(Date.now() + rul * 24 * 60 * 60 * 1000);
+      const failureDateStr = failureDate.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Temperature (°C)',
+              data: sampled.map(t => t.temperature),
+              borderColor: '#EF4444',
+              backgroundColor: 'rgba(239, 68, 68, 0.05)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              tension: 0.3,
+              fill: false,
+              yAxisID: 'y',
+            },
+            {
+              label: 'Pressure (bar)',
+              data: sampled.map(t => t.pressure),
+              borderColor: '#22C55E',
+              backgroundColor: 'rgba(34, 197, 94, 0.05)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              tension: 0.3,
+              fill: false,
+              yAxisID: 'y2',
+            },
+            {
+              label: 'Vibration (mm/s)',
+              data: sampled.map(t => t.vibration),
+              borderColor: '#3B82F6',
+              backgroundColor: 'rgba(59, 130, 246, 0.05)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              tension: 0.3,
+              fill: false,
+              yAxisID: 'y',
+            },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                padding: 20,
+                font: { family: 'Inter', size: 12 },
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(27, 42, 91, 0.95)',
+              titleFont: { family: 'Inter', weight: 600 },
+              bodyFont: { family: 'Inter' },
+              padding: 12,
+              cornerRadius: 8,
+            },
+            annotation: {
+              annotations: {
+                failureLine: {
+                  type: 'line',
+                  xMin: labels.length - 1,
+                  xMax: labels.length - 1,
+                  borderColor: 'rgba(239, 68, 68, 0.6)',
+                  borderWidth: 2,
+                  borderDash: [6, 4],
+                  label: {
+                    display: true,
+                    content: `Predicted Failure on ${failureDateStr}`,
+                    position: 'start',
+                    backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                    color: '#fff',
+                    font: { family: 'Inter', size: 11, weight: 600 },
+                    padding: { x: 8, y: 4 },
+                    borderRadius: 4,
+                  }
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { family: 'Inter', size: 11 },
+                maxTicksLimit: 8,
+              }
+            },
+            y: {
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Vibration(mm/s) / Temperature(°C)',
+                font: { family: 'Inter', size: 11 },
+              },
+              grid: { color: 'rgba(0,0,0,0.04)' },
+              ticks: { font: { family: 'Inter', size: 11 } },
+            },
+            y2: {
+              position: 'right',
+              title: {
+                display: true,
+                text: 'Pressure (bar)',
+                font: { family: 'Inter', size: 11 },
+              },
+              grid: { drawOnChartArea: false },
+              ticks: { font: { family: 'Inter', size: 11 } },
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

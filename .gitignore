@@ -1,0 +1,5 @@
+node_modules/
+server/pgdata/
+server/.env
+server/node_modules/
+*.log

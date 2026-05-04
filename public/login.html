@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PreVis — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- Root layout ---- */
+    .login-page {
+      position: relative;
+      display: flex;
+      min-height: 100vh;
+      /* Blue gradient is the BASE — entire page */
+      background: linear-gradient(160deg, #1E3A8A 0%, #1B2A5B 40%, #0F1A3A 100%);
+      overflow: hidden;
+    }
+
+    /* ---- Full-viewport SVG that paints the white left shape ---- */
+    .bg-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ---- Decorative orbs (inside blue area) ---- */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 320px;
+      height: 320px;
+      background: #3B82F6;
+      top: -80px;
+      right: -60px;
+      animation: drift 12s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 200px;
+      height: 200px;
+      background: #8B5CF6;
+      bottom: 120px;
+      right: 30%;
+      animation: drift 15s ease-in-out infinite reverse;
+    }
+
+    .orb-3 {
+      width: 260px;
+      height: 260px;
+      background: #06B6D4;
+      bottom: -60px;
+      right: -40px;
+      animation: drift 10s ease-in-out infinite;
+    }
+
+    @keyframes drift {
+
+      0%,
+      100% {
+        transform: translate(0, 0);
+      }
+
+      25% {
+        transform: translate(20px, -15px);
+      }
+
+      50% {
+        transform: translate(-10px, 20px);
+      }
+
+      75% {
+        transform: translate(15px, 10px);
+      }
+    }
+
+    /* ---- Left panel — transparent so SVG white shape shows ---- */
+    .left-panel {
+      flex: 0 0 48%;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem 3rem;
+      /* NO background: the SVG provides the white */
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C4C9D4, #E5E7EB);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1B2A5B;
+      letter-spacing: -0.03em;
+    }
+
+    .illustration-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      padding: 1rem 0;
+    }
+
+    /* Placeholder illustration: inline SVG mimicking the crane/laptop graphic */
+    .illustration-container svg {
+      max-width: 340px;
+      width: 80%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    .tagline {
+      padding-bottom: 1.5rem;
+    }
+
+    .tagline h2 {
+      font-size: 1.75rem;
+      font-weight: 400;
+      color: #1B2A5B;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+    }
+
+    .tagline strong {
+      font-weight: 800;
+    }
+
+    /* ---- Right panel content ---- */
+    .right-panel {
+      flex: 1;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ---- Login Card ---- */
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 0 2rem;
+    }
+
+    .login-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .login-subtitle {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.95rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ---- Fields ---- */
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 1.1rem;
+    }
+
+    .field-icon {
+      color: rgba(255, 255, 255, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 50px;
+      padding: 0 18px;
+      flex: 1;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .input-group:focus-within {
+      box-shadow: 0 0 0 3px rgba(59, 95, 230, 0.25), 0 2px 10px rgba(0, 0, 0, 0.06);
+      transform: translateY(-1px);
+    }
+
+    .input-group input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 13px 10px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      color: #1F2937;
+      background: transparent;
+      min-width: 0;
+    }
+
+    .input-group input::placeholder {
+      color: #9CA3AF;
+    }
+
+    .toggle-password {
+      background: none;
+      border: none;
+      color: #9CA3AF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle-password:hover {
+      color: #3B5FE6;
+      background: rgba(59, 95, 230, 0.08);
+    }
+
+    .error-message {
+      color: #FCA5A5;
+      font-size: 0.82rem;
+      min-height: 0;
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 4px 0 52px;
+      transition: all 0.3s;
+    }
+
+    .error-message.show {
+      min-height: 1.5rem;
+      max-height: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1.2rem;
+    }
+
+    .forgot-link {
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 0.8rem;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s;
+    }
+
+    .forgot-link:hover {
+      color: #fff;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .login-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 36px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #8090e8, #6070d4);
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 15px rgba(59, 95, 230, 0.3);
+    }
+
+    .login-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #6a7ee0, #5264cc);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(59, 95, 230, 0.4);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn-spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    .btn-spinner.show {
+      display: block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 900px) {
+      .login-page {
+        flex-direction: column;
+        background: #fff;
+      }
+
+      .bg-svg {
+        display: none;
+      }
+
+      .left-panel {
+        background: #fff;
+        flex: none;
+        padding: 2rem;
+      }
+
+      .right-panel {
+        background: linear-gradient(160deg, #1E3A8A 0%, #0F1A3A 100%);
+        border-radius: 30px 30px 0 0;
+        margin-top: -30px;
+        padding: 2.5rem 1rem;
+      }
+
+      .orb {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .left-panel {
+        padding: 1.5rem;
+      }
+
+      .logo-text {
+        font-size: 1.5rem;
+      }
+
+      .login-title {
+        font-size: 2rem;
+      }
+
+      .field-icon {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-page">
+
+    <!--
+    KEY FIX: One full-viewport SVG paints the white left-panel shape.
+    viewBox="0 0 1000 600" with preserveAspectRatio="xMidYMid slice" means
+    it always fills the screen regardless of window size.
+    The S-curve path forms the organic divider boundary.
+  -->
+    <svg class="bg-svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true">
+      <!-- White left panel shape with S-curve right edge -->
+      <path d="
+      M 0 0
+      L 540 0
+      C 460 80,  400 160, 450 280
+      C 500 400, 430 490, 480 600
+      L 0 600
+      Z
+    " fill="white" />
+    </svg>
+
+    <!-- Orbs (render in blue zone only) -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- ====== Left Panel ====== -->
+    <section class="left-panel" aria-label="Brand">
+      <div class="logo">
+        <div class="logo-circle" aria-hidden="true"></div>
+        <span class="logo-text">PreVis</span>
+      </div>
+
+      <div class="illustration-container">
+        <img src="assets/login_icon.png" alt="..." width="460" height="460">
+      </div>
+
+      <div class="tagline">
+        <h2><strong>Transforming</strong> Data into<br>Actionable <strong>Foresight</strong></h2>
+      </div>
+    </section>
+
+    <!-- ====== Right Panel ====== -->
+    <section class="right-panel" aria-label="Login Form">
+      <div class="login-card">
+        <h1 class="login-title">Login</h1>
+        <p class="login-subtitle">Welcome back, please log in..</p>
+
+        <form id="login-form" autocomplete="on" novalidate>
+          <!-- Username -->
+          <div class="field-row">
+            <span class="field-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path
+                  d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+              </svg>
+            </span>
+            <div class="input-group">
+              <input type="text" id="username" name="username" placeholder="Username or Email" required
+                autocomplete="username">
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="field-row">
+            <span class="field-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path
+                  d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+              </svg>
+            </span>
+            <div class="input-group">
+              <input type="password" id="password" name="password" placeholder="Password" required
+                autocomplete="current-password">
+              <button type="button" class="toggle-password" id="toggle-password"
+                aria-label="Toggle password visibility">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" id="eye-icon">
+                  <path
+                    d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="error-message" id="error-message" role="alert"></div>
+
+          <div class="form-options">
+            <a href="#" class="forgot-link">Forgot Password?..</a>
+          </div>
+
+          <div class="btn-row">
+            <button type="submit" class="login-btn" id="login-btn">
+              <span class="btn-text">Login</span>
+              <span class="btn-spinner" id="btn-spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Toggle password visibility
+    document.getElementById('toggle-password').addEventListener('click', () => {
+      const input = document.getElementById('password');
+      const icon = document.getElementById('eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+      } else {
+        input.type = 'password';
+        icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+      }
+    });
+
+    // Form submit
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('error-message');
+      const btn = document.getElementById('login-btn');
+      const spinner = document.getElementById('btn-spinner');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      errorEl.textContent = '';
+      errorEl.classList.remove('show');
+
+      if (!username || !password) {
+        errorEl.textContent = 'Please fill in all fields';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      spinner.classList.add('show');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login failed');
+        localStorage.setItem('previs_user', JSON.stringify(data));
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.add('show');
+        btn.disabled = false;
+        spinner.classList.remove('show');
+      }
+    });
+  </script>
+</body>
+
+</html>
