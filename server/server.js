@@ -1,9 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
+const pool = require('./db');
 require('dotenv').config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: '*' } });
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -24,8 +29,124 @@ app.get('/', (req, res) => {
   res.redirect('/login.html');
 });
 
-app.listen(PORT, () => {
+// ==============================================
+// Socket.IO — IoT Simulator Real-time Engine
+// ==============================================
+
+// Buffer for batch inserts (flush every 5 seconds)
+let telemetryBuffer = [];
+const FLUSH_INTERVAL_MS = 5000;
+
+// Flush buffer to PostgreSQL
+async function flushTelemetryBuffer() {
+  if (telemetryBuffer.length === 0) return;
+
+  const batch = [...telemetryBuffer];
+  telemetryBuffer = [];
+
+  try {
+    const values = batch.map((r, i) => {
+      const offset = i * 7;
+      return `($${offset+1}, $${offset+2}, $${offset+3}, $${offset+4}, $${offset+5}, $${offset+6}, $${offset+7})`;
+    }).join(',');
+
+    const params = batch.flatMap(r => [
+      r.machine_id, r.timestamp, r.temperature, r.vibration, r.pressure, r.rpm, r.power
+    ]);
+
+    await pool.query(`
+      INSERT INTO sensor_telemetry (machine_id, timestamp, temperature, vibration, pressure, rpm, power)
+      VALUES ${values}
+    `, params);
+
+  } catch (err) {
+    console.error('❌ Telemetry flush error:', err.message);
+    // Put failed batch back
+    telemetryBuffer.unshift(...batch);
+  }
+}
+
+setInterval(flushTelemetryBuffer, FLUSH_INTERVAL_MS);
+
+// Track connected simulators
+let simulatorCount = 0;
+
+io.on('connection', (socket) => {
+  console.log(`🔌 Client connected: ${socket.id}`);
+
+  // Simulator identifies itself
+  socket.on('register-simulator', () => {
+    simulatorCount++;
+    socket.join('simulators');
+    console.log(`🎛️  Simulator registered (${simulatorCount} active)`);
+    socket.emit('registered', { status: 'ok' });
+  });
+
+  // Dashboard identifies itself
+  socket.on('register-dashboard', () => {
+    socket.join('dashboards');
+    console.log(`📊 Dashboard registered`);
+  });
+
+  // Receive sensor data from simulator
+  socket.on('sensor-data', (data) => {
+    // data = { machine_id, temperature, vibration, pressure, rpm, power }
+    const reading = {
+      machine_id: data.machine_id,
+      timestamp: new Date().toISOString(),
+      temperature: parseFloat(data.temperature) || 0,
+      vibration: parseFloat(data.vibration) || 0,
+      pressure: parseFloat(data.pressure) || 0,
+      rpm: parseInt(data.rpm) || 0,
+      power: parseFloat(data.power) || 0,
+    };
+
+    // Add to batch buffer
+    telemetryBuffer.push(reading);
+
+    // Broadcast to all dashboard clients in real-time
+    io.to('dashboards').emit('live-telemetry', reading);
+  });
+
+  // Receive batch scenario changes
+  socket.on('scenario-change', async (data) => {
+    // data = { machine_id, alert_level, rul_estimated, failure_prob }
+    try {
+      await pool.query(`
+        INSERT INTO predictions (machine_id, timestamp, rul_estimated, failure_prob, alert_level)
+        VALUES ($1, NOW(), $2, $3, $4)
+      `, [data.machine_id, data.rul_estimated, data.failure_prob, data.alert_level]);
+
+      // Notify dashboards
+      io.to('dashboards').emit('prediction-update', data);
+      console.log(`🤖 Prediction updated: ${data.machine_id} → ${data.alert_level}`);
+
+    } catch (err) {
+      console.error('❌ Prediction update error:', err.message);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.rooms.has('simulators')) {
+      simulatorCount = Math.max(0, simulatorCount - 1);
+      console.log(`🎛️  Simulator disconnected (${simulatorCount} active)`);
+    }
+    console.log(`🔌 Client disconnected: ${socket.id}`);
+  });
+});
+
+// Status endpoint
+app.get('/api/simulator/status', (req, res) => {
+  res.json({
+    simulators: simulatorCount,
+    buffer_size: telemetryBuffer.length,
+    dashboards: io.sockets.adapter.rooms.get('dashboards')?.size || 0,
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`\n🚀 PreVis server running at http://localhost:${PORT}`);
   console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard.html`);
+  console.log(`🎛️  Simulator: http://localhost:${PORT}/simulator.html`);
   console.log(`🔐 Login: http://localhost:${PORT}/login.html\n`);
 });

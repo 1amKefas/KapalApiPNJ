@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PreVis — IoT Machine Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="simulator.css">
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+</head>
+<body>
+  <div class="simulator">
+
+    <!-- ====== Top Bar ====== -->
+    <header class="top-bar">
+      <div class="top-left">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#E8A44A"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <h1 class="app-title">IoT Machine Simulator</h1>
+        <span class="app-badge">PreVis</span>
+      </div>
+      <div class="top-center">
+        <div class="transport-controls">
+          <button class="transport-btn" id="btn-play" title="Start Sending">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="transport-btn active" id="btn-pause" title="Pause">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+        </div>
+        <div class="live-indicator" id="live-indicator">
+          <span class="live-dot"></span>
+          <span class="live-text">PAUSED</span>
+        </div>
+      </div>
+      <div class="top-right">
+        <div class="stat-box">
+          <span class="stat-label">Buffer</span>
+          <span class="stat-value" id="stat-buffer">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">msg/s</span>
+          <span class="stat-value" id="stat-rate">0</span>
+        </div>
+        <div class="connection-status" id="conn-status" title="Disconnected">
+          <span class="conn-dot disconnected"></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ====== Main Layout ====== -->
+    <div class="mixer-layout">
+
+      <!-- ---- Machine Selector Strip ---- -->
+      <aside class="machine-strip">
+        <div class="strip-header">MACHINES</div>
+        <div class="machine-list" id="machine-list"></div>
+      </aside>
+
+      <!-- ---- Channel Faders ---- -->
+      <main class="channel-section">
+        <!-- Each channel strip is a self-contained mixer channel -->
+
+        <div class="channel-strip" id="ch-temperature">
+          <div class="channel-label">TEMP</div>
+          <div class="fader-wrapper">
+            <!-- Tick marks rendered via CSS -->
+            <div class="tick-marks"></div>
+            <div class="fader-slot">
+              <input type="range" class="fader" id="fader-temperature" min="20" max="100" step="0.1" value="42" orient="vertical">
+            </div>
+            <div class="fader-scale">
+              <span>100</span><span>75</span><span>50</span><span>25</span>
+            </div>
+          </div>
+          <div class="channel-readout">
+            <span class="readout-val" id="val-temperature">42.0</span>
+            <span class="readout-unit">°C</span>
+          </div>
+          <div class="channel-led" id="led-temperature"></div>
+        </div>
+
+        <div class="channel-strip" id="ch-vibration">
+          <div class="channel-label">VIB</div>
+          <div class="fader-wrapper">
+            <div class="tick-marks"></div>
+            <div class="fader-slot">
+              <input type="range" class="fader" id="fader-vibration" min="0" max="10" step="0.01" value="2.0" orient="vertical">
+            </div>
+            <div class="fader-scale">
+              <span>10</span><span>7.5</span><span>5</span><span>2.5</span>
+            </div>
+          </div>
+          <div class="channel-readout">
+            <span class="readout-val" id="val-vibration">2.00</span>
+            <span class="readout-unit">mm/s</span>
+          </div>
+          <div class="channel-led" id="led-vibration"></div>
+        </div>
+
+        <div class="channel-strip" id="ch-pressure">
+          <div class="channel-label">PRESS</div>
+          <div class="fader-wrapper">
+            <div class="tick-marks"></div>
+            <div class="fader-slot">
+              <input type="range" class="fader" id="fader-pressure" min="3" max="15" step="0.1" value="10.5" orient="vertical">
+            </div>
+            <div class="fader-scale">
+              <span>15</span><span>12</span><span>9</span><span>6</span>
+            </div>
+          </div>
+          <div class="channel-readout">
+            <span class="readout-val" id="val-pressure">10.5</span>
+            <span class="readout-unit">bar</span>
+          </div>
+          <div class="channel-led" id="led-pressure"></div>
+        </div>
+
+        <div class="channel-strip" id="ch-rpm">
+          <div class="channel-label">RPM</div>
+          <div class="fader-wrapper">
+            <div class="tick-marks"></div>
+            <div class="fader-slot">
+              <input type="range" class="fader" id="fader-rpm" min="0" max="2000" step="1" value="1500" orient="vertical">
+            </div>
+            <div class="fader-scale">
+              <span>2K</span><span>1.5K</span><span>1K</span><span>500</span>
+            </div>
+          </div>
+          <div class="channel-readout">
+            <span class="readout-val" id="val-rpm">1500</span>
+            <span class="readout-unit"></span>
+          </div>
+          <div class="channel-led" id="led-rpm"></div>
+        </div>
+
+        <div class="channel-strip" id="ch-power">
+          <div class="channel-label">POWER</div>
+          <div class="fader-wrapper">
+            <div class="tick-marks"></div>
+            <div class="fader-slot">
+              <input type="range" class="fader" id="fader-power" min="0" max="25" step="0.1" value="10" orient="vertical">
+            </div>
+            <div class="fader-scale">
+              <span>25</span><span>20</span><span>15</span><span>10</span>
+            </div>
+          </div>
+          <div class="channel-readout">
+            <span class="readout-val" id="val-power">10.0</span>
+            <span class="readout-unit">kW</span>
+          </div>
+          <div class="channel-led" id="led-power"></div>
+        </div>
+      </main>
+
+      <!-- ---- Master / Knob Section ---- -->
+      <aside class="master-section">
+        <div class="master-block">
+          <div class="master-title">MASTER</div>
+
+          <div class="knob-control">
+            <div class="knob-housing" id="knob-interval-housing">
+              <div class="knob" id="knob-interval-knob" data-target="knob-interval">
+                <div class="knob-indicator"></div>
+              </div>
+              <div class="knob-ticks"></div>
+            </div>
+            <div class="knob-label">INTERVAL</div>
+            <div class="knob-readout" id="knob-interval-val">1.0s</div>
+            <input type="hidden" id="knob-interval" value="1000" data-min="200" data-max="5000">
+          </div>
+
+          <div class="knob-control">
+            <div class="knob-housing" id="knob-noise-housing">
+              <div class="knob" id="knob-noise-knob" data-target="knob-noise">
+                <div class="knob-indicator"></div>
+              </div>
+              <div class="knob-ticks"></div>
+            </div>
+            <div class="knob-label">NOISE</div>
+            <div class="knob-readout" id="knob-noise-val">20%</div>
+            <input type="hidden" id="knob-noise" value="20" data-min="0" data-max="100">
+          </div>
+        </div>
+
+        <div class="scenario-block">
+          <div class="master-title">SCENARIOS</div>
+          <button class="scenario-btn" data-scenario="healthy">
+            <span class="scenario-led healthy-led"></span>Healthy
+          </button>
+          <button class="scenario-btn" data-scenario="warning">
+            <span class="scenario-led warning-led"></span>Warning
+          </button>
+          <button class="scenario-btn" data-scenario="critical">
+            <span class="scenario-led critical-led"></span>Critical
+          </button>
+          <button class="scenario-btn scenario-degrade-btn" data-scenario="degrading">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+            Degrading
+          </button>
+        </div>
+
+        <div class="apply-block">
+          <button class="apply-btn" id="btn-apply-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            Apply All
+          </button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="simulator.js"></script>
+  <script>
+    // ---- Rotary Knob Interaction ----
+    document.querySelectorAll('.knob').forEach(knobEl => {
+      const targetId = knobEl.dataset.target;
+      const hiddenInput = document.getElementById(targetId);
+      const min = parseFloat(hiddenInput.dataset.min);
+      const max = parseFloat(hiddenInput.dataset.max);
+      let dragging = false;
+      let startY = 0;
+      let startVal = 0;
+
+      function valToAngle(val) {
+        const pct = (val - min) / (max - min);
+        return -135 + pct * 270; // -135° to +135°
+      }
+
+      function setKnob(val) {
+        val = Math.max(min, Math.min(max, val));
+        hiddenInput.value = val;
+        knobEl.style.transform = `rotate(${valToAngle(val)}deg)`;
+
+        if (targetId === 'knob-interval') {
+          const ms = Math.round(val);
+          document.getElementById('knob-interval-val').textContent =
+            ms >= 1000 ? `${(ms / 1000).toFixed(1)}s` : `${ms}ms`;
+          // Trigger change event for simulator.js
+          hiddenInput.dispatchEvent(new Event('change'));
+        } else if (targetId === 'knob-noise') {
+          document.getElementById('knob-noise-val').textContent = `${Math.round(val)}%`;
+          hiddenInput.dispatchEvent(new Event('change'));
+        }
+      }
+
+      // Init position
+      setKnob(parseFloat(hiddenInput.value));
+
+      knobEl.addEventListener('mousedown', (e) => {
+        dragging = true;
+        startY = e.clientY;
+        startVal = parseFloat(hiddenInput.value);
+        document.body.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const dy = startY - e.clientY;
+        const range = max - min;
+        const sensitivity = range / 200;
+        setKnob(startVal + dy * sensitivity);
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (dragging) {
+          dragging = false;
+          document.body.style.cursor = '';
+        }
+      });
+
+      // Mouse wheel support
+      knobEl.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const range = max - min;
+        const step = range / 50;
+        setKnob(parseFloat(hiddenInput.value) + (e.deltaY < 0 ? step : -step));
+      });
+    });
+
+    // Wire hidden inputs to simulator state
+    document.getElementById('knob-interval').addEventListener('change', function() {
+      if (typeof state !== 'undefined') {
+        state.sendInterval = parseInt(this.value);
+        if (state.isPlaying) {
+          clearInterval(state.sendTimer);
+          state.sendTimer = setInterval(sendSensorData, state.sendInterval);
+        }
+      }
+    });
+    document.getElementById('knob-noise').addEventListener('change', function() {
+      if (typeof state !== 'undefined') {
+        state.noiseLevel = parseInt(this.value) / 100;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,501 @@
+log_id,date,machine_id,maintenance_type,technician_notes,downtime_hours,parts_replaced,cost_idr
+ML-0001,2025-07-26,M-06,Preventive,"Inspeksi rutin, ganti oli",2.4,Sensor,2731555
+ML-0002,2025-11-22,M-08,Corrective,"Belt putus, ganti belt dan pulley",9.6,Seal,9427034
+ML-0003,2025-10-05,M-09,Corrective,"Motor overheat, ganti komponen pendingin",19.2,Valve,6882664
+ML-0004,2025-08-10,M-16,Corrective,"Belt putus, ganti belt dan pulley",23.0,Bearing,5193784
+ML-0005,2025-08-31,M-14,Preventive,"Cek electrical connection, test safety switch",4.6,Valve,1315839
+ML-0006,2025-11-30,M-02,Corrective,"Motor overheat, ganti komponen pendingin",14.2,Filter,5763765
+ML-0007,2025-09-21,M-05,Corrective,"Bearing aus, perlu penggantian",9.1,Bearing,13304349
+ML-0008,2025-07-01,M-14,Corrective,"Belt putus, ganti belt dan pulley",23.2,Belt,8654635
+ML-0009,2025-08-06,M-01,Preventive,"Lubrikasi komponen, cek belt",5.4,Seal,2537231
+ML-0010,2025-10-03,M-15,Preventive,"Lubrikasi komponen, cek belt",2.6,Sensor,964067
+ML-0011,2025-10-26,M-04,Corrective,"Bearing aus, perlu penggantian",23.8,Bearing,10547583
+ML-0012,2025-09-24,M-19,Emergency,Short circuit pada panel kontrol,71.7,Seal,39501697
+ML-0013,2025-12-21,M-07,Corrective,"Belt putus, ganti belt dan pulley",18.8,Filter,11403165
+ML-0014,2025-10-24,M-13,Corrective,"Bearing aus, perlu penggantian",20.4,N/A,11682760
+ML-0015,2025-11-16,M-16,Preventive,"Lubrikasi komponen, cek belt",7.4,Motor,2020054
+ML-0016,2025-07-09,M-18,Preventive,"Inspeksi rutin, ganti oli",6.5,Bearing,1714077
+ML-0017,2025-08-03,M-17,Preventive,"Inspeksi rutin, ganti oli",6.4,Filter,2696940
+ML-0018,2025-08-09,M-08,Preventive,"Lubrikasi komponen, cek belt",3.6,Sensor,1355974
+ML-0019,2025-07-05,M-06,Preventive,"Cek electrical connection, test safety switch",2.4,Bearing,937932
+ML-0020,2025-07-26,M-04,Corrective,"Sensor rusak, ganti sensor baru",8.3,N/A,13531663
+ML-0021,2025-11-21,M-12,Emergency,Kegagalan sistem pendingin kritis,60.7,Valve,46165198
+ML-0022,2025-11-21,M-02,Corrective,"Sensor rusak, ganti sensor baru",9.6,Motor,7392873
+ML-0023,2025-09-24,M-03,Corrective,"Belt putus, ganti belt dan pulley",8.6,Seal,8907195
+ML-0024,2025-10-25,M-11,Corrective,"Belt putus, ganti belt dan pulley",14.5,Filter,3892325
+ML-0025,2025-09-22,M-18,Emergency,"Mesin berhenti total, kerusakan motor utama",70.7,Pump,40698221
+ML-0026,2025-09-15,M-01,Preventive,"Lubrikasi komponen, cek belt",7.3,Sensor,1739175
+ML-0027,2025-10-31,M-15,Preventive,"Inspeksi rutin, ganti oli",4.5,Bearing,585309
+ML-0028,2025-10-15,M-13,Corrective,"Motor overheat, ganti komponen pendingin",11.5,Seal,13421681
+ML-0029,2025-08-24,M-06,Preventive,"Lubrikasi komponen, cek belt",6.2,Filter,1297290
+ML-0030,2025-07-29,M-05,Preventive,"Cek electrical connection, test safety switch",5.5,Seal,931546
+ML-0031,2025-12-21,M-15,Preventive,"Lubrikasi komponen, cek belt",3.1,Motor,1825237
+ML-0032,2025-08-02,M-09,Preventive,"Ganti filter udara, cek bearing",6.3,Bearing,1062417
+ML-0033,2025-09-12,M-17,Preventive,"Inspeksi rutin, ganti oli",2.2,Pump,1780744
+ML-0034,2025-09-06,M-18,Corrective,"Kebocoran pressure line, ganti seal",20.5,Bearing,9443068
+ML-0035,2025-10-04,M-13,Corrective,"Belt putus, ganti belt dan pulley",17.5,Belt,10523104
+ML-0036,2025-10-12,M-07,Emergency,"Mesin berhenti total, kerusakan motor utama",36.8,Sensor,36154799
+ML-0037,2025-07-08,M-07,Preventive,"Inspeksi rutin, ganti oli",7.3,Valve,2353464
+ML-0038,2025-09-15,M-03,Corrective,"Belt putus, ganti belt dan pulley",9.7,Filter,4323408
+ML-0039,2025-09-24,M-07,Corrective,"Motor overheat, ganti komponen pendingin",23.3,Belt,6342095
+ML-0040,2025-09-03,M-02,Preventive,"Cek electrical connection, test safety switch",3.5,Pump,1852032
+ML-0041,2025-12-19,M-17,Corrective,"Kebocoran pressure line, ganti seal",19.9,Valve,4867028
+ML-0042,2025-07-13,M-08,Preventive,"Lubrikasi komponen, cek belt",4.2,Belt,2867405
+ML-0043,2025-08-04,M-19,Corrective,"Motor overheat, ganti komponen pendingin",16.9,N/A,4535075
+ML-0044,2025-07-07,M-16,Preventive,"Inspeksi rutin, ganti oli",4.0,Seal,2062886
+ML-0045,2025-09-17,M-11,Preventive,"Ganti filter udara, cek bearing",7.5,Valve,1733224
+ML-0046,2025-10-04,M-13,Preventive,"Inspeksi rutin, ganti oli",4.0,Bearing,2219434
+ML-0047,2025-12-21,M-13,Corrective,"Kebocoran pressure line, ganti seal",23.1,Sensor,7173439
+ML-0048,2025-09-17,M-14,Corrective,"Kebocoran pressure line, ganti seal",17.2,Filter,12176095
+ML-0049,2025-11-03,M-09,Preventive,"Kalibrasi sensor, bersihkan filter",3.6,Filter,2652226
+ML-0050,2025-12-11,M-10,Preventive,"Cek electrical connection, test safety switch",7.9,Pump,1830426
+ML-0051,2025-12-02,M-13,Preventive,"Ganti filter udara, cek bearing",5.7,Sensor,2246762
+ML-0052,2025-11-16,M-15,Emergency,Kebocoran besar pada hydraulic system,50.7,Valve,34501355
+ML-0053,2025-11-10,M-04,Corrective,"Motor overheat, ganti komponen pendingin",16.2,N/A,13257116
+ML-0054,2025-07-13,M-14,Corrective,"Kebocoran pressure line, ganti seal",16.4,Belt,12887829
+ML-0055,2025-09-17,M-02,Emergency,Short circuit pada panel kontrol,18.9,Belt,21218618
+ML-0056,2025-11-19,M-20,Emergency,Kegagalan sistem pendingin kritis,35.9,N/A,39394149
+ML-0057,2025-11-22,M-13,Preventive,"Kalibrasi sensor, bersihkan filter",4.9,Sensor,2273935
+ML-0058,2025-11-07,M-02,Emergency,Short circuit pada panel kontrol,59.6,N/A,17616249
+ML-0059,2025-08-27,M-11,Preventive,"Inspeksi rutin, ganti oli",4.6,N/A,1837680
+ML-0060,2025-11-08,M-20,Preventive,"Kalibrasi sensor, bersihkan filter",7.3,Motor,2741035
+ML-0061,2025-12-14,M-05,Corrective,"Bearing aus, perlu penggantian",20.0,Valve,6609750
+ML-0062,2025-09-16,M-17,Emergency,Short circuit pada panel kontrol,28.5,Bearing,34781250
+ML-0063,2025-10-28,M-05,Preventive,"Inspeksi rutin, ganti oli",6.9,Valve,2754910
+ML-0064,2025-07-01,M-09,Corrective,"Bearing aus, perlu penggantian",11.8,Pump,13530907
+ML-0065,2025-07-09,M-19,Preventive,"Kalibrasi sensor, bersihkan filter",8.0,Belt,1081334
+ML-0066,2025-11-07,M-13,Preventive,"Inspeksi rutin, ganti oli",4.9,Bearing,2207522
+ML-0067,2025-11-29,M-15,Preventive,"Lubrikasi komponen, cek belt",2.2,Pump,2747828
+ML-0068,2025-11-20,M-15,Emergency,Kegagalan sistem pendingin kritis,48.4,Sensor,27483644
+ML-0069,2025-09-19,M-20,Emergency,Short circuit pada panel kontrol,34.6,Bearing,28638285
+ML-0070,2025-12-04,M-19,Preventive,"Inspeksi rutin, ganti oli",5.5,Sensor,1511521
+ML-0071,2025-10-05,M-04,Corrective,"Kebocoran pressure line, ganti seal",12.1,Motor,6760115
+ML-0072,2025-12-04,M-16,Emergency,Short circuit pada panel kontrol,25.3,Filter,11263022
+ML-0073,2025-10-20,M-10,Corrective,"Bearing aus, perlu penggantian",14.7,Motor,7093163
+ML-0074,2025-11-18,M-15,Corrective,"Belt putus, ganti belt dan pulley",15.7,Motor,10420961
+ML-0075,2025-12-17,M-11,Preventive,"Inspeksi rutin, ganti oli",5.5,Bearing,1671721
+ML-0076,2025-09-20,M-12,Corrective,"Kebocoran pressure line, ganti seal",17.5,Valve,7823250
+ML-0077,2025-07-08,M-16,Preventive,"Cek electrical connection, test safety switch",7.7,Motor,679717
+ML-0078,2025-09-19,M-05,Preventive,"Inspeksi rutin, ganti oli",6.2,Seal,1498720
+ML-0079,2025-10-15,M-07,Preventive,"Inspeksi rutin, ganti oli",5.2,Bearing,1159601
+ML-0080,2025-08-11,M-18,Preventive,"Cek electrical connection, test safety switch",2.5,Motor,1616847
+ML-0081,2025-11-14,M-04,Preventive,"Cek electrical connection, test safety switch",3.3,Filter,1171025
+ML-0082,2025-07-21,M-01,Preventive,"Kalibrasi sensor, bersihkan filter",2.1,Sensor,2749730
+ML-0083,2025-11-19,M-20,Preventive,"Inspeksi rutin, ganti oli",5.0,Bearing,2760912
+ML-0084,2025-07-11,M-01,Preventive,"Kalibrasi sensor, bersihkan filter",5.2,Sensor,1252610
+ML-0085,2025-09-08,M-20,Preventive,"Ganti filter udara, cek bearing",2.9,Valve,1027846
+ML-0086,2025-07-24,M-18,Preventive,"Ganti filter udara, cek bearing",5.9,Filter,2133397
+ML-0087,2025-10-17,M-07,Emergency,Short circuit pada panel kontrol,45.9,Seal,21005868
+ML-0088,2025-07-08,M-15,Corrective,"Sensor rusak, ganti sensor baru",8.5,Motor,8499169
+ML-0089,2025-11-20,M-19,Corrective,"Sensor rusak, ganti sensor baru",8.5,N/A,7983686
+ML-0090,2025-12-16,M-09,Corrective,"Bearing aus, perlu penggantian",23.7,N/A,14623207
+ML-0091,2025-09-14,M-11,Preventive,"Ganti filter udara, cek bearing",5.0,Belt,2513088
+ML-0092,2025-09-16,M-19,Emergency,Short circuit pada panel kontrol,68.1,Pump,35487645
+ML-0093,2025-08-06,M-20,Preventive,"Cek electrical connection, test safety switch",4.3,Seal,2718360
+ML-0094,2025-12-24,M-20,Preventive,"Cek electrical connection, test safety switch",7.8,N/A,2299360
+ML-0095,2025-07-12,M-01,Preventive,"Ganti filter udara, cek bearing",4.3,Bearing,904478
+ML-0096,2025-08-05,M-01,Preventive,"Ganti filter udara, cek bearing",5.5,Seal,2496700
+ML-0097,2025-09-04,M-06,Preventive,"Lubrikasi komponen, cek belt",4.4,Motor,2649364
+ML-0098,2025-11-18,M-12,Preventive,"Lubrikasi komponen, cek belt",2.5,Motor,2353402
+ML-0099,2025-12-17,M-02,Preventive,"Ganti filter udara, cek bearing",2.3,Seal,2614613
+ML-0100,2025-07-30,M-03,Emergency,Short circuit pada panel kontrol,63.9,Seal,16092730
+ML-0101,2025-09-19,M-13,Preventive,"Lubrikasi komponen, cek belt",5.7,Valve,2181613
+ML-0102,2025-09-16,M-11,Preventive,"Cek electrical connection, test safety switch",3.6,Bearing,2463514
+ML-0103,2025-07-09,M-11,Preventive,"Cek electrical connection, test safety switch",4.9,Motor,1625448
+ML-0104,2025-09-14,M-08,Preventive,"Inspeksi rutin, ganti oli",7.0,Valve,2746025
+ML-0105,2025-07-31,M-01,Corrective,"Bearing aus, perlu penggantian",20.3,Seal,4531286
+ML-0106,2025-11-02,M-18,Preventive,"Cek electrical connection, test safety switch",4.7,Seal,2389348
+ML-0107,2025-12-13,M-14,Corrective,"Belt putus, ganti belt dan pulley",19.9,Belt,13404356
+ML-0108,2025-11-26,M-02,Corrective,"Sensor rusak, ganti sensor baru",23.0,Motor,5269657
+ML-0109,2025-10-30,M-04,Corrective,"Motor overheat, ganti komponen pendingin",16.3,Belt,13312938
+ML-0110,2025-08-12,M-10,Corrective,"Sensor rusak, ganti sensor baru",19.9,Pump,3664678
+ML-0111,2025-09-13,M-15,Preventive,"Ganti filter udara, cek bearing",2.4,N/A,2849796
+ML-0112,2025-07-02,M-07,Preventive,"Ganti filter udara, cek bearing",6.2,Motor,2016071
+ML-0113,2025-08-09,M-10,Preventive,"Inspeksi rutin, ganti oli",3.4,Sensor,2926470
+ML-0114,2025-11-21,M-17,Corrective,"Bearing aus, perlu penggantian",8.2,Pump,8068998
+ML-0115,2025-10-28,M-13,Preventive,"Lubrikasi komponen, cek belt",3.2,Motor,1850666
+ML-0116,2025-09-10,M-03,Corrective,"Belt putus, ganti belt dan pulley",23.2,Seal,8945841
+ML-0117,2025-09-09,M-05,Preventive,"Ganti filter udara, cek bearing",2.4,Belt,886120
+ML-0118,2025-07-24,M-20,Preventive,"Cek electrical connection, test safety switch",4.2,Motor,1690838
+ML-0119,2025-08-02,M-01,Emergency,Kegagalan sistem pendingin kritis,21.6,Motor,49643133
+ML-0120,2025-11-17,M-05,Preventive,"Inspeksi rutin, ganti oli",2.5,Bearing,2024758
+ML-0121,2025-11-09,M-11,Preventive,"Inspeksi rutin, ganti oli",7.7,Motor,1354058
+ML-0122,2025-12-28,M-01,Preventive,"Inspeksi rutin, ganti oli",5.8,Belt,2120289
+ML-0123,2025-08-23,M-03,Corrective,"Sensor rusak, ganti sensor baru",21.5,Valve,6938943
+ML-0124,2025-12-17,M-07,Corrective,"Motor overheat, ganti komponen pendingin",12.8,Valve,4602907
+ML-0125,2025-09-20,M-01,Preventive,"Inspeksi rutin, ganti oli",3.2,Belt,2801234
+ML-0126,2025-09-25,M-03,Preventive,"Inspeksi rutin, ganti oli",6.7,Sensor,1532342
+ML-0127,2025-08-24,M-11,Preventive,"Ganti filter udara, cek bearing",3.2,Filter,1434500
+ML-0128,2025-07-08,M-15,Preventive,"Kalibrasi sensor, bersihkan filter",7.0,Valve,2065683
+ML-0129,2025-12-26,M-18,Emergency,Kegagalan sistem pendingin kritis,48.2,Seal,41598791
+ML-0130,2025-09-08,M-08,Corrective,"Belt putus, ganti belt dan pulley",13.4,Motor,14172581
+ML-0131,2025-09-09,M-16,Preventive,"Inspeksi rutin, ganti oli",4.8,Bearing,2046027
+ML-0132,2025-10-03,M-13,Emergency,Kegagalan sistem pendingin kritis,69.3,Sensor,29872903
+ML-0133,2025-10-12,M-02,Preventive,"Kalibrasi sensor, bersihkan filter",5.7,Belt,2435633
+ML-0134,2025-07-19,M-19,Preventive,"Ganti filter udara, cek bearing",7.7,Filter,873752
+ML-0135,2025-07-10,M-05,Corrective,"Bearing aus, perlu penggantian",18.7,Motor,7630860
+ML-0136,2025-10-04,M-16,Corrective,"Bearing aus, perlu penggantian",8.7,N/A,11879401
+ML-0137,2025-08-26,M-07,Corrective,"Motor overheat, ganti komponen pendingin",8.6,Valve,12958397
+ML-0138,2025-12-15,M-08,Preventive,"Kalibrasi sensor, bersihkan filter",6.9,Motor,2010270
+ML-0139,2025-07-14,M-03,Corrective,"Motor overheat, ganti komponen pendingin",20.3,Bearing,11221828
+ML-0140,2025-07-27,M-08,Preventive,"Ganti filter udara, cek bearing",6.7,Motor,2351164
+ML-0141,2025-12-08,M-06,Corrective,"Belt putus, ganti belt dan pulley",18.2,Seal,11601074
+ML-0142,2025-07-01,M-14,Preventive,"Ganti filter udara, cek bearing",6.3,Seal,2009667
+ML-0143,2025-12-26,M-20,Preventive,"Cek electrical connection, test safety switch",5.2,Motor,2219930
+ML-0144,2025-08-15,M-07,Corrective,"Sensor rusak, ganti sensor baru",8.2,Seal,4851062
+ML-0145,2025-11-28,M-03,Preventive,"Inspeksi rutin, ganti oli",7.0,Motor,2888098
+ML-0146,2025-10-15,M-06,Emergency,Kegagalan sistem pendingin kritis,20.7,N/A,11928444
+ML-0147,2025-11-26,M-10,Preventive,"Ganti filter udara, cek bearing",7.5,Pump,1649911
+ML-0148,2025-10-17,M-10,Preventive,"Lubrikasi komponen, cek belt",2.7,Filter,688383
+ML-0149,2025-11-28,M-07,Preventive,"Ganti filter udara, cek bearing",7.9,Belt,2369697
+ML-0150,2025-10-14,M-05,Corrective,"Belt putus, ganti belt dan pulley",8.7,Sensor,13035295
+ML-0151,2025-11-13,M-03,Corrective,"Bearing aus, perlu penggantian",13.7,Filter,14935093
+ML-0152,2025-07-23,M-10,Corrective,"Kebocoran pressure line, ganti seal",19.1,Filter,11519867
+ML-0153,2025-07-07,M-04,Emergency,Kebocoran besar pada hydraulic system,62.8,Motor,25323986
+ML-0154,2025-11-12,M-01,Corrective,"Kebocoran pressure line, ganti seal",19.0,Seal,6729327
+ML-0155,2025-10-19,M-15,Preventive,"Cek electrical connection, test safety switch",7.0,Valve,1126714
+ML-0156,2025-12-18,M-05,Corrective,"Kebocoran pressure line, ganti seal",15.3,Seal,6301685
+ML-0157,2025-08-25,M-18,Preventive,"Lubrikasi komponen, cek belt",5.1,Valve,1240555
+ML-0158,2025-10-26,M-05,Preventive,"Ganti filter udara, cek bearing",6.3,Motor,859566
+ML-0159,2025-09-21,M-15,Corrective,"Motor overheat, ganti komponen pendingin",16.7,Seal,3451821
+ML-0160,2025-09-03,M-20,Preventive,"Inspeksi rutin, ganti oli",6.4,Sensor,893619
+ML-0161,2025-07-09,M-15,Corrective,"Belt putus, ganti belt dan pulley",14.6,Seal,13120879
+ML-0162,2025-08-11,M-13,Preventive,"Ganti filter udara, cek bearing",3.0,N/A,1746362
+ML-0163,2025-11-28,M-11,Preventive,"Ganti filter udara, cek bearing",6.8,N/A,749926
+ML-0164,2025-10-04,M-15,Corrective,"Kebocoran pressure line, ganti seal",11.0,Seal,6330766
+ML-0165,2025-09-23,M-13,Emergency,Kebocoran besar pada hydraulic system,30.4,Valve,36544738
+ML-0166,2025-07-25,M-07,Emergency,"Mesin berhenti total, kerusakan motor utama",61.5,Sensor,35528270
+ML-0167,2025-09-23,M-08,Preventive,"Kalibrasi sensor, bersihkan filter",2.6,Sensor,1831981
+ML-0168,2025-11-18,M-09,Emergency,Short circuit pada panel kontrol,70.7,N/A,23457407
+ML-0169,2025-12-27,M-01,Corrective,"Bearing aus, perlu penggantian",10.4,Valve,13725389
+ML-0170,2025-12-11,M-05,Preventive,"Kalibrasi sensor, bersihkan filter",3.7,Belt,1292450
+ML-0171,2025-12-10,M-17,Emergency,Kegagalan sistem pendingin kritis,20.2,Belt,35426026
+ML-0172,2025-09-15,M-10,Preventive,"Inspeksi rutin, ganti oli",4.1,Pump,791365
+ML-0173,2025-11-14,M-12,Corrective,"Sensor rusak, ganti sensor baru",20.4,Motor,5195576
+ML-0174,2025-11-26,M-16,Preventive,"Inspeksi rutin, ganti oli",5.4,Valve,1353838
+ML-0175,2025-12-16,M-19,Corrective,"Kebocoran pressure line, ganti seal",20.9,Bearing,4441241
+ML-0176,2025-12-04,M-20,Corrective,"Sensor rusak, ganti sensor baru",21.8,Seal,10085663
+ML-0177,2025-10-18,M-05,Corrective,"Motor overheat, ganti komponen pendingin",9.7,Seal,14348189
+ML-0178,2025-12-21,M-18,Corrective,"Motor overheat, ganti komponen pendingin",18.1,Motor,11444924
+ML-0179,2025-07-17,M-13,Corrective,"Kebocoran pressure line, ganti seal",21.1,Valve,6395483
+ML-0180,2025-09-08,M-04,Corrective,"Sensor rusak, ganti sensor baru",15.0,Filter,12363536
+ML-0181,2025-11-23,M-01,Preventive,"Inspeksi rutin, ganti oli",3.2,Valve,728959
+ML-0182,2025-09-01,M-19,Emergency,Kegagalan sistem pendingin kritis,64.1,Filter,22677825
+ML-0183,2025-12-09,M-18,Corrective,"Belt putus, ganti belt dan pulley",11.7,Filter,3764098
+ML-0184,2025-08-04,M-09,Emergency,Short circuit pada panel kontrol,60.0,N/A,41771994
+ML-0185,2025-08-01,M-20,Corrective,"Motor overheat, ganti komponen pendingin",21.4,Valve,12371683
+ML-0186,2025-12-09,M-02,Preventive,"Kalibrasi sensor, bersihkan filter",3.7,Sensor,1726249
+ML-0187,2025-07-16,M-02,Preventive,"Ganti filter udara, cek bearing",7.3,Filter,2973718
+ML-0188,2025-12-02,M-03,Corrective,"Kebocoran pressure line, ganti seal",8.6,Seal,14248860
+ML-0189,2025-08-16,M-01,Corrective,"Kebocoran pressure line, ganti seal",15.8,Motor,3385783
+ML-0190,2025-07-21,M-01,Preventive,"Lubrikasi komponen, cek belt",6.4,Filter,2815382
+ML-0191,2025-08-12,M-05,Corrective,"Motor overheat, ganti komponen pendingin",22.4,N/A,5636270
+ML-0192,2025-09-23,M-13,Preventive,"Lubrikasi komponen, cek belt",5.3,Pump,2958721
+ML-0193,2025-07-28,M-17,Preventive,"Ganti filter udara, cek bearing",4.7,Pump,2749001
+ML-0194,2025-07-08,M-03,Preventive,"Lubrikasi komponen, cek belt",5.1,Bearing,2115538
+ML-0195,2025-07-06,M-17,Emergency,Kebocoran besar pada hydraulic system,38.7,Valve,12689185
+ML-0196,2025-10-19,M-09,Corrective,"Kebocoran pressure line, ganti seal",12.7,Valve,8740395
+ML-0197,2025-09-11,M-02,Corrective,"Kebocoran pressure line, ganti seal",16.5,N/A,4303491
+ML-0198,2025-10-31,M-12,Emergency,"Mesin berhenti total, kerusakan motor utama",36.8,Valve,14073728
+ML-0199,2025-10-18,M-16,Preventive,"Ganti filter udara, cek bearing",6.3,Sensor,1405099
+ML-0200,2025-10-04,M-03,Preventive,"Cek electrical connection, test safety switch",2.0,Sensor,926675
+ML-0201,2025-08-28,M-01,Corrective,"Belt putus, ganti belt dan pulley",18.9,Seal,7085779
+ML-0202,2025-07-03,M-09,Preventive,"Lubrikasi komponen, cek belt",2.2,Sensor,2187815
+ML-0203,2025-10-16,M-19,Preventive,"Cek electrical connection, test safety switch",3.9,Belt,2872253
+ML-0204,2025-07-21,M-07,Emergency,"Mesin berhenti total, kerusakan motor utama",48.5,Valve,25484224
+ML-0205,2025-10-10,M-01,Emergency,Kegagalan sistem pendingin kritis,38.0,Bearing,13678071
+ML-0206,2025-07-19,M-20,Preventive,"Cek electrical connection, test safety switch",2.4,Bearing,1337237
+ML-0207,2025-12-28,M-10,Corrective,"Motor overheat, ganti komponen pendingin",22.3,Belt,9898468
+ML-0208,2025-10-06,M-20,Preventive,"Inspeksi rutin, ganti oli",4.1,Filter,2755799
+ML-0209,2025-10-24,M-07,Corrective,"Kebocoran pressure line, ganti seal",17.7,Pump,13025820
+ML-0210,2025-09-24,M-12,Preventive,"Lubrikasi komponen, cek belt",6.0,Motor,509804
+ML-0211,2025-11-29,M-11,Preventive,"Ganti filter udara, cek bearing",6.9,Seal,781947
+ML-0212,2025-10-14,M-07,Preventive,"Cek electrical connection, test safety switch",5.3,Valve,2890560
+ML-0213,2025-10-03,M-06,Corrective,"Sensor rusak, ganti sensor baru",14.5,Bearing,8183162
+ML-0214,2025-07-26,M-11,Preventive,"Kalibrasi sensor, bersihkan filter",5.2,N/A,654572
+ML-0215,2025-09-15,M-15,Preventive,"Cek electrical connection, test safety switch",5.7,Sensor,2446822
+ML-0216,2025-08-28,M-02,Emergency,"Mesin berhenti total, kerusakan motor utama",32.1,Motor,16044880
+ML-0217,2025-08-22,M-12,Preventive,"Cek electrical connection, test safety switch",6.4,Seal,2477154
+ML-0218,2025-10-13,M-12,Preventive,"Cek electrical connection, test safety switch",4.1,Filter,1530101
+ML-0219,2025-07-21,M-19,Preventive,"Kalibrasi sensor, bersihkan filter",6.4,Belt,884012
+ML-0220,2025-08-22,M-02,Preventive,"Cek electrical connection, test safety switch",2.8,Valve,1726686
+ML-0221,2025-08-17,M-14,Emergency,"Mesin berhenti total, kerusakan motor utama",57.1,Valve,46033391
+ML-0222,2025-11-26,M-01,Emergency,Short circuit pada panel kontrol,38.9,Filter,21083914
+ML-0223,2025-07-02,M-11,Preventive,"Inspeksi rutin, ganti oli",6.7,Motor,1023296
+ML-0224,2025-09-13,M-10,Emergency,Kebocoran besar pada hydraulic system,41.0,Bearing,22102192
+ML-0225,2025-11-17,M-18,Preventive,"Inspeksi rutin, ganti oli",4.5,Motor,528717
+ML-0226,2025-07-01,M-13,Preventive,"Kalibrasi sensor, bersihkan filter",2.0,N/A,2571815
+ML-0227,2025-10-20,M-11,Preventive,"Kalibrasi sensor, bersihkan filter",2.3,Belt,2993837
+ML-0228,2025-12-10,M-04,Preventive,"Lubrikasi komponen, cek belt",6.5,Sensor,717829
+ML-0229,2025-12-11,M-16,Preventive,"Ganti filter udara, cek bearing",6.2,Valve,895742
+ML-0230,2025-11-10,M-01,Emergency,Kebocoran besar pada hydraulic system,21.7,Belt,13696714
+ML-0231,2025-11-01,M-10,Preventive,"Kalibrasi sensor, bersihkan filter",6.1,Seal,1689725
+ML-0232,2025-11-22,M-10,Preventive,"Lubrikasi komponen, cek belt",2.9,Valve,2367004
+ML-0233,2025-09-12,M-18,Preventive,"Cek electrical connection, test safety switch",2.9,Seal,2438288
+ML-0234,2025-08-26,M-12,Preventive,"Lubrikasi komponen, cek belt",4.4,Bearing,2772195
+ML-0235,2025-09-26,M-09,Corrective,"Belt putus, ganti belt dan pulley",23.5,Valve,9151931
+ML-0236,2025-09-25,M-20,Preventive,"Lubrikasi komponen, cek belt",7.1,N/A,2843947
+ML-0237,2025-11-18,M-11,Preventive,"Ganti filter udara, cek bearing",5.1,Bearing,1761894
+ML-0238,2025-10-04,M-08,Emergency,"Mesin berhenti total, kerusakan motor utama",19.2,Valve,22494352
+ML-0239,2025-09-24,M-03,Preventive,"Ganti filter udara, cek bearing",3.1,Pump,2069707
+ML-0240,2025-08-18,M-18,Emergency,Kebocoran besar pada hydraulic system,24.5,Valve,22463475
+ML-0241,2025-11-17,M-03,Corrective,"Sensor rusak, ganti sensor baru",20.5,Motor,4662574
+ML-0242,2025-09-25,M-17,Preventive,"Cek electrical connection, test safety switch",6.9,Filter,1038471
+ML-0243,2025-10-02,M-09,Corrective,"Motor overheat, ganti komponen pendingin",23.6,Sensor,11164352
+ML-0244,2025-08-03,M-12,Preventive,"Lubrikasi komponen, cek belt",2.5,Seal,1589150
+ML-0245,2025-08-11,M-10,Preventive,"Inspeksi rutin, ganti oli",6.9,Sensor,2892030
+ML-0246,2025-10-27,M-13,Corrective,"Bearing aus, perlu penggantian",22.1,Pump,14095873
+ML-0247,2025-10-25,M-15,Preventive,"Ganti filter udara, cek bearing",6.1,Filter,2981447
+ML-0248,2025-12-17,M-12,Preventive,"Kalibrasi sensor, bersihkan filter",6.6,Belt,1865618
+ML-0249,2025-11-06,M-08,Preventive,"Cek electrical connection, test safety switch",2.3,Seal,2123446
+ML-0250,2025-08-30,M-06,Emergency,"Mesin berhenti total, kerusakan motor utama",30.2,Valve,32552389
+ML-0251,2025-09-16,M-15,Emergency,Kegagalan sistem pendingin kritis,68.0,Valve,32145668
+ML-0252,2025-10-26,M-12,Corrective,"Bearing aus, perlu penggantian",12.1,Filter,11854996
+ML-0253,2025-09-18,M-01,Corrective,"Kebocoran pressure line, ganti seal",10.3,Sensor,13642161
+ML-0254,2025-11-02,M-20,Corrective,"Motor overheat, ganti komponen pendingin",14.4,Sensor,5214765
+ML-0255,2025-08-11,M-20,Preventive,"Inspeksi rutin, ganti oli",2.4,Filter,1015278
+ML-0256,2025-11-13,M-19,Preventive,"Ganti filter udara, cek bearing",7.2,Seal,674070
+ML-0257,2025-10-01,M-18,Corrective,"Motor overheat, ganti komponen pendingin",12.4,Valve,13426829
+ML-0258,2025-08-27,M-02,Preventive,"Inspeksi rutin, ganti oli",2.8,Valve,1901576
+ML-0259,2025-11-01,M-05,Emergency,Short circuit pada panel kontrol,34.0,N/A,24539735
+ML-0260,2025-09-18,M-11,Corrective,"Bearing aus, perlu penggantian",8.4,Seal,5941358
+ML-0261,2025-12-17,M-10,Corrective,"Bearing aus, perlu penggantian",11.1,Valve,14115234
+ML-0262,2025-10-17,M-05,Preventive,"Cek electrical connection, test safety switch",4.1,Filter,2346936
+ML-0263,2025-08-27,M-18,Preventive,"Kalibrasi sensor, bersihkan filter",7.2,Belt,644106
+ML-0264,2025-09-05,M-20,Emergency,Kebocoran besar pada hydraulic system,65.8,N/A,21345556
+ML-0265,2025-08-06,M-11,Preventive,"Kalibrasi sensor, bersihkan filter",2.2,Bearing,2039449
+ML-0266,2025-07-25,M-02,Corrective,"Motor overheat, ganti komponen pendingin",12.8,Belt,7067223
+ML-0267,2025-10-15,M-10,Preventive,"Inspeksi rutin, ganti oli",3.1,Bearing,2206839
+ML-0268,2025-07-21,M-17,Emergency,Kebocoran besar pada hydraulic system,23.2,Filter,37677453
+ML-0269,2025-07-08,M-10,Corrective,"Motor overheat, ganti komponen pendingin",15.1,Pump,4855272
+ML-0270,2025-10-15,M-08,Preventive,"Cek electrical connection, test safety switch",3.3,Bearing,2241664
+ML-0271,2025-07-16,M-14,Preventive,"Inspeksi rutin, ganti oli",6.4,Valve,2633180
+ML-0272,2025-08-14,M-09,Preventive,"Kalibrasi sensor, bersihkan filter",7.2,Pump,2617747
+ML-0273,2025-10-19,M-13,Preventive,"Inspeksi rutin, ganti oli",6.3,Bearing,819506
+ML-0274,2025-11-08,M-15,Preventive,"Cek electrical connection, test safety switch",4.3,Sensor,1627444
+ML-0275,2025-12-21,M-03,Emergency,Short circuit pada panel kontrol,57.0,Bearing,41519280
+ML-0276,2025-07-27,M-10,Emergency,Kegagalan sistem pendingin kritis,31.8,Motor,46215252
+ML-0277,2025-08-16,M-13,Preventive,"Ganti filter udara, cek bearing",5.1,Filter,2568372
+ML-0278,2025-08-25,M-02,Corrective,"Sensor rusak, ganti sensor baru",9.5,Sensor,13342958
+ML-0279,2025-12-26,M-04,Emergency,Short circuit pada panel kontrol,62.8,Filter,31879641
+ML-0280,2025-07-04,M-15,Preventive,"Ganti filter udara, cek bearing",6.5,Sensor,2622467
+ML-0281,2025-10-10,M-03,Preventive,"Ganti filter udara, cek bearing",3.0,Seal,1854780
+ML-0282,2025-10-13,M-11,Preventive,"Lubrikasi komponen, cek belt",2.9,N/A,2591688
+ML-0283,2025-09-20,M-12,Corrective,"Kebocoran pressure line, ganti seal",17.0,Motor,13977574
+ML-0284,2025-09-26,M-12,Emergency,Kebocoran besar pada hydraulic system,53.6,N/A,47772401
+ML-0285,2025-08-27,M-13,Preventive,"Kalibrasi sensor, bersihkan filter",5.5,Valve,1642881
+ML-0286,2025-12-14,M-17,Preventive,"Lubrikasi komponen, cek belt",6.9,Filter,978151
+ML-0287,2025-10-28,M-15,Corrective,"Sensor rusak, ganti sensor baru",14.3,Bearing,7839647
+ML-0288,2025-12-18,M-04,Preventive,"Kalibrasi sensor, bersihkan filter",3.8,Motor,2860700
+ML-0289,2025-09-23,M-06,Preventive,"Kalibrasi sensor, bersihkan filter",3.6,Filter,1805396
+ML-0290,2025-09-02,M-09,Preventive,"Cek electrical connection, test safety switch",3.1,Belt,1651572
+ML-0291,2025-08-24,M-05,Preventive,"Ganti filter udara, cek bearing",7.6,Belt,1965848
+ML-0292,2025-07-25,M-18,Preventive,"Cek electrical connection, test safety switch",2.8,Bearing,711003
+ML-0293,2025-07-25,M-14,Preventive,"Kalibrasi sensor, bersihkan filter",5.4,Sensor,2236007
+ML-0294,2025-12-25,M-02,Corrective,"Kebocoran pressure line, ganti seal",22.8,Filter,14776582
+ML-0295,2025-12-27,M-10,Emergency,Short circuit pada panel kontrol,68.6,Belt,28908643
+ML-0296,2025-11-25,M-12,Preventive,"Cek electrical connection, test safety switch",7.4,Motor,1699418
+ML-0297,2025-12-24,M-02,Corrective,"Bearing aus, perlu penggantian",10.7,Pump,7135886
+ML-0298,2025-11-11,M-09,Preventive,"Lubrikasi komponen, cek belt",3.1,Pump,1792644
+ML-0299,2025-08-17,M-20,Preventive,"Inspeksi rutin, ganti oli",4.6,Belt,2491601
+ML-0300,2025-10-17,M-05,Emergency,Kebocoran besar pada hydraulic system,60.5,Motor,22378000
+ML-0301,2025-10-27,M-14,Preventive,"Lubrikasi komponen, cek belt",4.5,Pump,1978180
+ML-0302,2025-09-19,M-13,Corrective,"Bearing aus, perlu penggantian",16.6,Sensor,14729374
+ML-0303,2025-08-13,M-04,Preventive,"Lubrikasi komponen, cek belt",6.2,Motor,1783073
+ML-0304,2025-12-26,M-19,Preventive,"Kalibrasi sensor, bersihkan filter",4.4,Bearing,1219876
+ML-0305,2025-12-12,M-12,Emergency,Kegagalan sistem pendingin kritis,65.6,Bearing,35816370
+ML-0306,2025-08-31,M-06,Preventive,"Ganti filter udara, cek bearing",4.2,Filter,1993943
+ML-0307,2025-08-22,M-05,Preventive,"Kalibrasi sensor, bersihkan filter",8.0,Belt,2310793
+ML-0308,2025-12-21,M-15,Emergency,Kebocoran besar pada hydraulic system,30.0,Bearing,32250577
+ML-0309,2025-07-03,M-06,Corrective,"Bearing aus, perlu penggantian",15.2,Sensor,12265706
+ML-0310,2025-09-23,M-10,Preventive,"Ganti filter udara, cek bearing",6.7,Valve,1593906
+ML-0311,2025-10-19,M-13,Emergency,"Mesin berhenti total, kerusakan motor utama",58.6,N/A,20455696
+ML-0312,2025-11-24,M-12,Corrective,"Belt putus, ganti belt dan pulley",8.3,Motor,12219556
+ML-0313,2025-08-27,M-03,Corrective,"Motor overheat, ganti komponen pendingin",10.6,Belt,7599516
+ML-0314,2025-12-08,M-07,Preventive,"Inspeksi rutin, ganti oli",4.8,Seal,2963361
+ML-0315,2025-07-15,M-11,Corrective,"Sensor rusak, ganti sensor baru",8.4,Pump,4792865
+ML-0316,2025-08-11,M-03,Corrective,"Sensor rusak, ganti sensor baru",13.8,Seal,6272346
+ML-0317,2025-08-29,M-20,Corrective,"Sensor rusak, ganti sensor baru",9.4,Valve,14100635
+ML-0318,2025-09-26,M-18,Preventive,"Cek electrical connection, test safety switch",3.3,N/A,2104352
+ML-0319,2025-09-15,M-18,Preventive,"Inspeksi rutin, ganti oli",4.6,N/A,2388413
+ML-0320,2025-09-21,M-06,Emergency,Kebocoran besar pada hydraulic system,36.8,Seal,31412880
+ML-0321,2025-10-28,M-13,Preventive,"Lubrikasi komponen, cek belt",7.3,Seal,2737849
+ML-0322,2025-07-22,M-18,Preventive,"Ganti filter udara, cek bearing",5.7,Seal,1478655
+ML-0323,2025-12-10,M-08,Corrective,"Kebocoran pressure line, ganti seal",11.0,Seal,14013303
+ML-0324,2025-09-18,M-11,Preventive,"Cek electrical connection, test safety switch",5.0,Valve,2946876
+ML-0325,2025-10-19,M-16,Preventive,"Lubrikasi komponen, cek belt",4.6,Filter,2796044
+ML-0326,2025-11-30,M-06,Preventive,"Inspeksi rutin, ganti oli",7.1,Pump,900574
+ML-0327,2025-11-07,M-07,Emergency,"Mesin berhenti total, kerusakan motor utama",30.0,N/A,38591851
+ML-0328,2025-07-27,M-11,Corrective,"Motor overheat, ganti komponen pendingin",10.4,Filter,9068074
+ML-0329,2025-08-16,M-14,Corrective,"Bearing aus, perlu penggantian",16.5,Bearing,7479768
+ML-0330,2025-12-28,M-09,Emergency,Short circuit pada panel kontrol,44.1,Belt,40419310
+ML-0331,2025-12-11,M-01,Corrective,"Sensor rusak, ganti sensor baru",17.1,Sensor,7538679
+ML-0332,2025-08-08,M-09,Preventive,"Kalibrasi sensor, bersihkan filter",7.3,Bearing,1753128
+ML-0333,2025-07-12,M-04,Preventive,"Lubrikasi komponen, cek belt",6.8,N/A,2032477
+ML-0334,2025-11-16,M-16,Corrective,"Belt putus, ganti belt dan pulley",21.4,N/A,6717209
+ML-0335,2025-11-09,M-15,Corrective,"Belt putus, ganti belt dan pulley",18.6,Belt,8145489
+ML-0336,2025-11-17,M-13,Corrective,"Sensor rusak, ganti sensor baru",11.3,Pump,5580500
+ML-0337,2025-11-29,M-09,Preventive,"Cek electrical connection, test safety switch",6.3,Pump,2702085
+ML-0338,2025-09-18,M-07,Corrective,"Belt putus, ganti belt dan pulley",23.8,Belt,9279550
+ML-0339,2025-11-04,M-01,Preventive,"Ganti filter udara, cek bearing",5.0,Bearing,2323582
+ML-0340,2025-12-08,M-03,Preventive,"Lubrikasi komponen, cek belt",2.4,Motor,1904113
+ML-0341,2025-09-12,M-06,Preventive,"Lubrikasi komponen, cek belt",5.1,Belt,1164621
+ML-0342,2025-10-26,M-18,Preventive,"Inspeksi rutin, ganti oli",2.3,Filter,2459410
+ML-0343,2025-10-28,M-11,Corrective,"Bearing aus, perlu penggantian",19.1,Valve,12434396
+ML-0344,2025-12-22,M-13,Preventive,"Lubrikasi komponen, cek belt",2.1,Bearing,1199051
+ML-0345,2025-08-20,M-19,Preventive,"Inspeksi rutin, ganti oli",7.4,N/A,2920140
+ML-0346,2025-11-16,M-12,Preventive,"Cek electrical connection, test safety switch",2.3,Seal,959794
+ML-0347,2025-11-01,M-05,Corrective,"Bearing aus, perlu penggantian",12.9,N/A,14830988
+ML-0348,2025-11-08,M-20,Preventive,"Cek electrical connection, test safety switch",4.9,Seal,1198457
+ML-0349,2025-10-06,M-17,Corrective,"Sensor rusak, ganti sensor baru",10.8,Filter,6417719
+ML-0350,2025-07-25,M-09,Emergency,Short circuit pada panel kontrol,37.4,Sensor,44256249
+ML-0351,2025-07-18,M-09,Corrective,"Belt putus, ganti belt dan pulley",9.1,Valve,6132925
+ML-0352,2025-07-30,M-08,Corrective,"Bearing aus, perlu penggantian",19.1,Filter,7056606
+ML-0353,2025-11-11,M-14,Emergency,"Mesin berhenti total, kerusakan motor utama",26.0,Motor,19001956
+ML-0354,2025-08-13,M-06,Preventive,"Ganti filter udara, cek bearing",5.5,Belt,1800025
+ML-0355,2025-12-15,M-20,Emergency,Kebocoran besar pada hydraulic system,70.8,Filter,19488966
+ML-0356,2025-11-04,M-13,Preventive,"Kalibrasi sensor, bersihkan filter",6.9,Bearing,1291951
+ML-0357,2025-11-22,M-06,Emergency,Kegagalan sistem pendingin kritis,18.5,Pump,17593294
+ML-0358,2025-11-08,M-05,Emergency,"Mesin berhenti total, kerusakan motor utama",42.1,N/A,48111730
+ML-0359,2025-08-09,M-15,Corrective,"Sensor rusak, ganti sensor baru",12.8,Pump,14947792
+ML-0360,2025-08-17,M-12,Preventive,"Inspeksi rutin, ganti oli",3.4,Seal,2486953
+ML-0361,2025-07-07,M-18,Preventive,"Inspeksi rutin, ganti oli",5.7,Bearing,1156895
+ML-0362,2025-09-28,M-12,Preventive,"Inspeksi rutin, ganti oli",5.7,Bearing,2804974
+ML-0363,2025-11-20,M-04,Corrective,"Sensor rusak, ganti sensor baru",14.3,Belt,9150448
+ML-0364,2025-10-26,M-10,Preventive,"Cek electrical connection, test safety switch",5.5,Bearing,860455
+ML-0365,2025-09-07,M-19,Emergency,"Mesin berhenti total, kerusakan motor utama",54.0,Filter,11511932
+ML-0366,2025-10-08,M-20,Corrective,"Motor overheat, ganti komponen pendingin",16.7,N/A,14720628
+ML-0367,2025-11-11,M-10,Emergency,Kegagalan sistem pendingin kritis,52.4,Filter,21672005
+ML-0368,2025-12-26,M-11,Preventive,"Cek electrical connection, test safety switch",3.4,Filter,688330
+ML-0369,2025-12-08,M-09,Corrective,"Kebocoran pressure line, ganti seal",17.6,N/A,13396936
+ML-0370,2025-09-01,M-05,Corrective,"Kebocoran pressure line, ganti seal",23.3,Valve,10042742
+ML-0371,2025-10-16,M-02,Preventive,"Ganti filter udara, cek bearing",7.9,Pump,1338212
+ML-0372,2025-07-10,M-16,Preventive,"Ganti filter udara, cek bearing",2.6,Motor,1695819
+ML-0373,2025-12-14,M-19,Emergency,"Mesin berhenti total, kerusakan motor utama",40.0,Bearing,35184752
+ML-0374,2025-09-24,M-16,Preventive,"Cek electrical connection, test safety switch",3.8,Motor,1140088
+ML-0375,2025-09-01,M-19,Corrective,"Motor overheat, ganti komponen pendingin",12.6,N/A,7506725
+ML-0376,2025-12-19,M-05,Preventive,"Kalibrasi sensor, bersihkan filter",3.8,Seal,1037307
+ML-0377,2025-12-14,M-19,Preventive,"Cek electrical connection, test safety switch",4.7,Motor,2137172
+ML-0378,2025-10-06,M-02,Corrective,"Sensor rusak, ganti sensor baru",22.7,Valve,6272148
+ML-0379,2025-07-24,M-19,Preventive,"Cek electrical connection, test safety switch",5.1,Filter,1507555
+ML-0380,2025-11-20,M-10,Corrective,"Sensor rusak, ganti sensor baru",16.7,Filter,8335349
+ML-0381,2025-10-13,M-03,Preventive,"Inspeksi rutin, ganti oli",4.5,Motor,2353178
+ML-0382,2025-07-20,M-11,Preventive,"Inspeksi rutin, ganti oli",5.1,Seal,1412613
+ML-0383,2025-07-01,M-01,Corrective,"Sensor rusak, ganti sensor baru",17.7,Motor,3306114
+ML-0384,2025-08-25,M-07,Preventive,"Kalibrasi sensor, bersihkan filter",6.7,Filter,801118
+ML-0385,2025-08-28,M-07,Preventive,"Cek electrical connection, test safety switch",7.9,Filter,2140286
+ML-0386,2025-07-07,M-08,Corrective,"Motor overheat, ganti komponen pendingin",23.8,Valve,14652477
+ML-0387,2025-10-13,M-19,Preventive,"Lubrikasi komponen, cek belt",5.2,Filter,1116610
+ML-0388,2025-09-14,M-10,Preventive,"Ganti filter udara, cek bearing",7.2,Seal,1879398
+ML-0389,2025-09-12,M-16,Corrective,"Kebocoran pressure line, ganti seal",18.9,Sensor,3275546
+ML-0390,2025-10-29,M-07,Emergency,"Mesin berhenti total, kerusakan motor utama",26.9,Bearing,29848805
+ML-0391,2025-10-08,M-11,Preventive,"Kalibrasi sensor, bersihkan filter",3.7,Valve,2500378
+ML-0392,2025-11-12,M-08,Emergency,Kebocoran besar pada hydraulic system,27.3,Pump,21687706
+ML-0393,2025-07-04,M-19,Preventive,"Kalibrasi sensor, bersihkan filter",3.4,Motor,1300082
+ML-0394,2025-07-02,M-03,Corrective,"Kebocoran pressure line, ganti seal",15.5,Pump,3898467
+ML-0395,2025-12-05,M-01,Preventive,"Lubrikasi komponen, cek belt",2.8,Valve,2431337
+ML-0396,2025-07-07,M-13,Corrective,"Belt putus, ganti belt dan pulley",9.2,Valve,12877962
+ML-0397,2025-09-11,M-09,Corrective,"Motor overheat, ganti komponen pendingin",9.4,Valve,5676645
+ML-0398,2025-10-28,M-13,Corrective,"Belt putus, ganti belt dan pulley",21.7,N/A,10881501
+ML-0399,2025-08-19,M-20,Preventive,"Cek electrical connection, test safety switch",3.1,Motor,2629017
+ML-0400,2025-12-05,M-16,Preventive,"Inspeksi rutin, ganti oli",2.2,Seal,1720788
+ML-0401,2025-09-04,M-06,Preventive,"Lubrikasi komponen, cek belt",7.4,N/A,1171793
+ML-0402,2025-10-03,M-11,Corrective,"Motor overheat, ganti komponen pendingin",10.4,Bearing,8266147
+ML-0403,2025-09-20,M-17,Preventive,"Kalibrasi sensor, bersihkan filter",4.9,Motor,990223
+ML-0404,2025-09-06,M-13,Preventive,"Kalibrasi sensor, bersihkan filter",6.9,N/A,2758428
+ML-0405,2025-07-17,M-14,Preventive,"Kalibrasi sensor, bersihkan filter",2.1,Motor,2552814
+ML-0406,2025-11-01,M-13,Corrective,"Motor overheat, ganti komponen pendingin",10.7,Seal,12406341
+ML-0407,2025-07-04,M-04,Corrective,"Kebocoran pressure line, ganti seal",13.2,Pump,14503206
+ML-0408,2025-09-03,M-15,Preventive,"Inspeksi rutin, ganti oli",4.8,Bearing,2063357
+ML-0409,2025-12-03,M-16,Preventive,"Cek electrical connection, test safety switch",2.2,Pump,2905754
+ML-0410,2025-07-31,M-06,Preventive,"Lubrikasi komponen, cek belt",7.2,N/A,2216477
+ML-0411,2025-10-22,M-10,Emergency,Kegagalan sistem pendingin kritis,34.5,Sensor,34927802
+ML-0412,2025-08-06,M-13,Corrective,"Belt putus, ganti belt dan pulley",11.1,N/A,10542955
+ML-0413,2025-10-30,M-14,Preventive,"Kalibrasi sensor, bersihkan filter",3.3,Belt,941765
+ML-0414,2025-09-21,M-02,Preventive,"Kalibrasi sensor, bersihkan filter",4.7,Belt,1044349
+ML-0415,2025-10-10,M-14,Corrective,"Motor overheat, ganti komponen pendingin",16.3,Valve,13068020
+ML-0416,2025-12-23,M-12,Preventive,"Inspeksi rutin, ganti oli",2.6,N/A,2416476
+ML-0417,2025-07-29,M-07,Preventive,"Inspeksi rutin, ganti oli",4.4,Valve,618971
+ML-0418,2025-09-20,M-11,Preventive,"Inspeksi rutin, ganti oli",2.6,Sensor,2282974
+ML-0419,2025-11-10,M-02,Preventive,"Inspeksi rutin, ganti oli",8.0,Sensor,2561045
+ML-0420,2025-10-28,M-14,Emergency,"Mesin berhenti total, kerusakan motor utama",19.9,Bearing,31795103
+ML-0421,2025-09-05,M-03,Corrective,"Bearing aus, perlu penggantian",18.5,Sensor,14618413
+ML-0422,2025-10-06,M-05,Emergency,Short circuit pada panel kontrol,46.6,Bearing,35651456
+ML-0423,2025-08-02,M-06,Corrective,"Motor overheat, ganti komponen pendingin",11.0,Motor,12925805
+ML-0424,2025-12-08,M-02,Preventive,"Ganti filter udara, cek bearing",7.5,N/A,1393447
+ML-0425,2025-11-09,M-18,Preventive,"Inspeksi rutin, ganti oli",3.3,N/A,2743406
+ML-0426,2025-11-03,M-18,Corrective,"Sensor rusak, ganti sensor baru",18.6,Sensor,6052977
+ML-0427,2025-08-26,M-10,Corrective,"Kebocoran pressure line, ganti seal",17.5,Pump,13283469
+ML-0428,2025-07-16,M-15,Corrective,"Kebocoran pressure line, ganti seal",22.1,Filter,3502179
+ML-0429,2025-08-07,M-10,Emergency,Short circuit pada panel kontrol,38.2,Belt,18435665
+ML-0430,2025-11-22,M-03,Emergency,Short circuit pada panel kontrol,39.3,N/A,18601918
+ML-0431,2025-08-08,M-07,Corrective,"Bearing aus, perlu penggantian",18.1,Motor,13353803
+ML-0432,2025-08-27,M-09,Corrective,"Bearing aus, perlu penggantian",22.7,Bearing,10881421
+ML-0433,2025-07-23,M-11,Preventive,"Inspeksi rutin, ganti oli",4.6,Belt,897173
+ML-0434,2025-12-12,M-09,Corrective,"Bearing aus, perlu penggantian",10.6,Pump,5052326
+ML-0435,2025-10-31,M-15,Preventive,"Cek electrical connection, test safety switch",3.0,Seal,642529
+ML-0436,2025-09-29,M-16,Preventive,"Ganti filter udara, cek bearing",3.0,Bearing,1889704
+ML-0437,2025-08-16,M-13,Corrective,"Belt putus, ganti belt dan pulley",14.0,N/A,10912503
+ML-0438,2025-10-13,M-04,Corrective,"Kebocoran pressure line, ganti seal",9.8,N/A,14930964
+ML-0439,2025-11-12,M-14,Preventive,"Cek electrical connection, test safety switch",5.7,Seal,2112605
+ML-0440,2025-12-10,M-03,Corrective,"Motor overheat, ganti komponen pendingin",17.9,Filter,11357954
+ML-0441,2025-07-14,M-18,Preventive,"Inspeksi rutin, ganti oli",2.9,Bearing,1261082
+ML-0442,2025-09-10,M-17,Corrective,"Motor overheat, ganti komponen pendingin",22.1,Bearing,10939184
+ML-0443,2025-09-16,M-20,Preventive,"Lubrikasi komponen, cek belt",2.8,Belt,2443639
+ML-0444,2025-11-04,M-14,Preventive,"Kalibrasi sensor, bersihkan filter",3.7,Valve,1868887
+ML-0445,2025-12-28,M-16,Corrective,"Kebocoran pressure line, ganti seal",20.6,Valve,6725116
+ML-0446,2025-10-04,M-05,Corrective,"Bearing aus, perlu penggantian",12.5,Valve,6403440
+ML-0447,2025-08-26,M-01,Emergency,Short circuit pada panel kontrol,33.5,Bearing,31560747
+ML-0448,2025-07-25,M-20,Corrective,"Kebocoran pressure line, ganti seal",10.8,Sensor,7022928
+ML-0449,2025-09-20,M-15,Emergency,Kegagalan sistem pendingin kritis,35.2,Belt,39460671
+ML-0450,2025-12-15,M-14,Preventive,"Ganti filter udara, cek bearing",2.7,Belt,1880539
+ML-0451,2025-08-25,M-06,Emergency,"Mesin berhenti total, kerusakan motor utama",39.7,Seal,19585379
+ML-0452,2025-08-13,M-12,Preventive,"Kalibrasi sensor, bersihkan filter",7.4,Filter,2564664
+ML-0453,2025-12-21,M-12,Corrective,"Belt putus, ganti belt dan pulley",21.0,Sensor,12200293
+ML-0454,2025-12-06,M-13,Preventive,"Lubrikasi komponen, cek belt",2.7,N/A,2433645
+ML-0455,2025-11-28,M-18,Corrective,"Kebocoran pressure line, ganti seal",21.9,Bearing,6950963
+ML-0456,2025-12-11,M-10,Preventive,"Cek electrical connection, test safety switch",6.0,N/A,844035
+ML-0457,2025-08-10,M-13,Preventive,"Lubrikasi komponen, cek belt",7.0,Filter,2670945
+ML-0458,2025-10-12,M-20,Corrective,"Bearing aus, perlu penggantian",21.0,Filter,8285067
+ML-0459,2025-12-21,M-09,Emergency,Short circuit pada panel kontrol,48.3,Belt,45649130
+ML-0460,2025-09-23,M-18,Preventive,"Cek electrical connection, test safety switch",2.5,Sensor,2954004
+ML-0461,2025-07-20,M-20,Preventive,"Lubrikasi komponen, cek belt",5.4,Motor,525208
+ML-0462,2025-12-09,M-14,Emergency,"Mesin berhenti total, kerusakan motor utama",64.8,Seal,23330264
+ML-0463,2025-12-03,M-16,Emergency,Short circuit pada panel kontrol,25.9,Sensor,34533723
+ML-0464,2025-11-29,M-17,Preventive,"Lubrikasi komponen, cek belt",7.6,Bearing,1209869
+ML-0465,2025-07-25,M-11,Corrective,"Motor overheat, ganti komponen pendingin",11.7,Sensor,13019147
+ML-0466,2025-08-01,M-08,Corrective,"Bearing aus, perlu penggantian",9.4,Bearing,14788187
+ML-0467,2025-11-04,M-07,Corrective,"Sensor rusak, ganti sensor baru",12.9,Sensor,9864650
+ML-0468,2025-09-25,M-02,Preventive,"Inspeksi rutin, ganti oli",4.4,Sensor,1782399
+ML-0469,2025-09-30,M-17,Corrective,"Bearing aus, perlu penggantian",16.9,N/A,4548189
+ML-0470,2025-10-10,M-11,Emergency,Kegagalan sistem pendingin kritis,35.6,Belt,10495077
+ML-0471,2025-08-18,M-10,Preventive,"Lubrikasi komponen, cek belt",7.5,Motor,1486598
+ML-0472,2025-09-14,M-20,Preventive,"Ganti filter udara, cek bearing",3.9,Seal,993906
+ML-0473,2025-11-21,M-08,Preventive,"Lubrikasi komponen, cek belt",7.8,Motor,2421582
+ML-0474,2025-08-25,M-06,Corrective,"Belt putus, ganti belt dan pulley",22.5,Belt,9709527
+ML-0475,2025-12-10,M-01,Corrective,"Bearing aus, perlu penggantian",17.3,Belt,10836144
+ML-0476,2025-08-22,M-14,Corrective,"Bearing aus, perlu penggantian",22.2,Bearing,3323082
+ML-0477,2025-08-27,M-15,Preventive,"Kalibrasi sensor, bersihkan filter",7.4,Filter,2139448
+ML-0478,2025-09-27,M-07,Corrective,"Bearing aus, perlu penggantian",12.2,N/A,3171503
+ML-0479,2025-11-30,M-02,Preventive,"Inspeksi rutin, ganti oli",6.3,Valve,1641143
+ML-0480,2025-09-05,M-20,Preventive,"Lubrikasi komponen, cek belt",6.1,Motor,948169
+ML-0481,2025-11-22,M-20,Corrective,"Kebocoran pressure line, ganti seal",20.2,Bearing,11855331
+ML-0482,2025-12-20,M-20,Preventive,"Ganti filter udara, cek bearing",4.8,Bearing,2378764
+ML-0483,2025-09-10,M-18,Emergency,Kebocoran besar pada hydraulic system,56.1,Bearing,39108020
+ML-0484,2025-09-09,M-04,Corrective,"Belt putus, ganti belt dan pulley",19.7,N/A,6473231
+ML-0485,2025-07-12,M-08,Corrective,"Motor overheat, ganti komponen pendingin",11.9,N/A,8143456
+ML-0486,2025-12-08,M-04,Preventive,"Inspeksi rutin, ganti oli",7.8,N/A,2331966
+ML-0487,2025-07-20,M-02,Preventive,"Kalibrasi sensor, bersihkan filter",2.9,Motor,1006527
+ML-0488,2025-09-29,M-06,Corrective,"Kebocoran pressure line, ganti seal",13.1,Seal,14223323
+ML-0489,2025-08-24,M-08,Corrective,"Kebocoran pressure line, ganti seal",13.7,Bearing,6863373
+ML-0490,2025-09-20,M-14,Preventive,"Inspeksi rutin, ganti oli",3.9,Belt,1474615
+ML-0491,2025-09-25,M-06,Preventive,"Kalibrasi sensor, bersihkan filter",2.4,Belt,1453330
+ML-0492,2025-10-17,M-18,Preventive,"Lubrikasi komponen, cek belt",2.1,N/A,2220410
+ML-0493,2025-07-18,M-14,Preventive,"Cek electrical connection, test safety switch",5.3,N/A,2810297
+ML-0494,2025-11-19,M-14,Corrective,"Motor overheat, ganti komponen pendingin",21.0,Filter,3630560
+ML-0495,2025-12-01,M-04,Emergency,"Mesin berhenti total, kerusakan motor utama",56.9,Filter,28228761
+ML-0496,2025-08-24,M-08,Preventive,"Ganti filter udara, cek bearing",2.6,Pump,1277345
+ML-0497,2025-11-03,M-13,Corrective,"Sensor rusak, ganti sensor baru",22.2,Sensor,9863746
+ML-0498,2025-09-07,M-11,Emergency,Short circuit pada panel kontrol,36.4,N/A,11168649
+ML-0499,2025-09-12,M-05,Preventive,"Lubrikasi komponen, cek belt",2.5,Valve,1170373
+ML-0500,2025-07-20,M-01,Preventive,"Kalibrasi sensor, bersihkan filter",2.0,Belt,2874865
