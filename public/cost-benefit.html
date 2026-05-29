@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PreVis Dashboard — Monitor machine health status, vibration, temperature, RPM, and predictive alerts in real-time.">
+    <title>PreVis — Cost Benefit Analysis</title>
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="shared.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="top-navbar" id="top-navbar"></nav>
+<!-- Sub Navigation -->
+<div class="sub-nav" id="sub-nav"></div>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Cost-Benefit Analysis</h1>
+        <span class="text-muted">Kewirausahaan - ROI & Business Case Predictive Maintenance</span>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <!-- ROI Card -->
+        <div class="summary-card">
+            <div class="summary-icon">
+                <img src="assets/analytic_icon.png" alt="ROI">
+            </div>
+            <div class="summary-info">
+                <span class="summary-label">Estimated ROI</span>
+                <span class="summary-value" id="roi-result" style="color: var(--healthy)">0%</span>
+                <span class="summary-sub">Dalam 1 Tahun Pertama</span>
+            </div>
+        </div>
+        <!-- Savings Card -->
+        <div class="summary-card">
+            <div class="summary-icon">
+                <img src="assets/total_machine_icon.png" alt="Savings">
+            </div>
+            <div class="summary-info">
+                <span class="summary-label">Cost Savings</span>
+                <span class="summary-value" id="savings-result">$0</span>
+                <span class="summary-sub">Preventive vs Predictive</span>
+            </div>
+        </div>
+         <!-- Payback Period -->
+         <div class="summary-card">
+            <div class="summary-icon">
+                <img src="assets/dahsboard_icon.png" onerror="this.src='assets/dashboard_icon.png'" alt="Time">
+            </div>
+            <div class="summary-info">
+                <span class="summary-label">Payback Period</span>
+                <span class="summary-value" id="payback-result">0 Bln</span>
+                <span class="summary-sub">Berdasarkan investasi awal</span>
+            </div>
+        </div>
+        <!-- Downtime Reduction -->
+        <div class="summary-card">
+            <div class="summary-icon">
+                <img src="assets/healthy_icon.png" alt="Uptime">
+            </div>
+            <div class="summary-info">
+                <span class="summary-label">Downtime Drop</span>
+                <span class="summary-value" style="color: var(--healthy)">45%</span>
+                <span class="summary-sub">Estimasi peningkatan uptime</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- ROI Calculator -->
+        <div class="card" style="padding: 1.5rem;">
+            <h2 class="section-title" style="margin-bottom: 1rem;">ROI Calculator</h2>
+            <div class="text-muted mb-2" style="font-size: 0.85rem;">Kalkulasi Return on Investment (ROI) untuk transisi ke LapisAI Predictive Maintenance.</div>
+            <div class="calc-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div>
+                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Initial Investment (Sensor IoT & Model AI) ($)</label>
+                    <input type="number" id="calc-investment" value="50000" style="width: 100%; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--text-primary);">
+                </div>
+                <div>
+                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Annual Preventive Maintenance Cost ($)</label>
+                    <input type="number" id="calc-preventive" value="200000" style="width: 100%; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--text-primary);">
+                </div>
+                <div>
+                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Estimated Predictive Maintenance Cost ($)</label>
+                    <input type="number" id="calc-predictive" value="130000" style="width: 100%; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--text-primary);">
+                </div>
+                <button id="btn-calculate" style="background: var(--accent); color: white; padding: 12px; border-radius: var(--radius-md); font-weight: 600; font-size: 1rem; margin-top: 10px; transition: background 0.2s; cursor: pointer;">Calculate ROI</button>
+            </div>
+        </div>
+
+        <!-- Business Case Analysis -->
+        <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column;">
+            <h2 class="section-title" style="margin-bottom: 1rem;">Business Case & Market Analysis</h2>
+            <div class="text-secondary" style="line-height: 1.6; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                <p class="mb-1"><strong style="color: var(--navy)">Latar Belakang:</strong> Industri manufaktur mengalami kerugian besar akibat downtime yang tidak terduga. Maintenance tradisional (preventive) memakan biaya besar karena penggantian suku cadang yang terlalu dini atau perbaikan setelah mesin rusak.</p>
+                <p class="mb-1"><strong style="color: var(--navy)">Solusi LapisAI:</strong> Sistem Predictive Maintenance menggunakan sensor IoT dan model Time Series Forecasting (LSTM/GRU) untuk memprediksi sisa umur mesin (RUL), memungkinkan perawatan tepat waktu.</p>
+                <p class="mb-1"><strong style="color: var(--navy)">Market Fit:</strong> Sejalan dengan industri 4.0, predictive maintenance mengurangi OPEX secara signifikan dan meningkatkan produktivitas serta umur mesin secara keseluruhan.</p>
+            </div>
+
+            <h3 class="fw-700 mt-auto mb-1" style="color: var(--navy); font-size: 1rem;">Perbandingan Pendekatan Biaya</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;" class="text-secondary">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--card-border);">
+                            <th style="padding: 10px 8px; color: var(--navy);">Aspek</th>
+                            <th style="padding: 10px 8px; color: var(--navy);">Preventive</th>
+                            <th style="padding: 10px 8px; color: var(--accent);">Predictive (LapisAI)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--card-border);">
+                            <td style="padding: 10px 8px; font-weight: 500;">Waktu Perawatan</td>
+                            <td style="padding: 10px 8px;">Jadwal Tetap (Kalender)</td>
+                            <td style="padding: 10px 8px; font-weight: 600; color: var(--accent);">Berdasarkan Kondisi (Just-in-Time)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--card-border);">
+                            <td style="padding: 10px 8px; font-weight: 500;">Penggantian Part</td>
+                            <td style="padding: 10px 8px;">Dini (Membuang sisa umur)</td>
+                            <td style="padding: 10px 8px; font-weight: 600; color: var(--accent);">Mendekati akhir umur (RUL)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 8px; font-weight: 500;">Risiko Breakdown</td>
+                            <td style="padding: 10px 8px;">Sedang (Unplanned downtime)</td>
+                            <td style="padding: 10px 8px; font-weight: 600; color: var(--healthy);">Sangat Rendah (Proaktif)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Auth guard and UI Init
+    const user = requireAuth();
+    if (user) {
+        renderNavbar('cost-benefit');
+    }
+
+    // ROI Calculator Logic
+    const btnCalculate = document.getElementById('btn-calculate');
+    if (btnCalculate) {
+        btnCalculate.addEventListener('click', () => {
+            const investment = parseFloat(document.getElementById('calc-investment').value);
+            const preventive = parseFloat(document.getElementById('calc-preventive').value);
+            const predictive = parseFloat(document.getElementById('calc-predictive').value);
+
+            if(isNaN(investment) || isNaN(preventive) || isNaN(predictive)) {
+                alert("Mohon masukkan nominal yang valid.");
+                return;
+            }
+
+            // Calculate savings (Preventive Cost - Predictive Cost)
+            const savings = preventive - predictive;
+
+            // Calculate ROI ((Net Profit / Investment) * 100)
+            const netProfit = savings - investment;
+            const roi = (netProfit / investment) * 100;
+
+            // Calculate Payback Period (Months)
+            const paybackMonths = (investment / savings) * 12;
+
+            // Update UI Result
+            const savingsEl = document.getElementById('savings-result');
+            const roiEl = document.getElementById('roi-result');
+            const paybackEl = document.getElementById('payback-result');
+
+            savingsEl.innerText = '$' + (savings / 1000).toFixed(1) + 'k';
+
+            roiEl.innerText = roi.toFixed(0) + '%';
+            if (roi > 0) {
+                roiEl.style.color = 'var(--healthy)';
+            } else {
+                roiEl.style.color = 'var(--critical)';
+            }
+
+            paybackEl.innerText = isFinite(paybackMonths) && paybackMonths > 0 
+                ? paybackMonths.toFixed(1) + ' Bln' 
+                : 'N/A';
+        });
+
+        // Trigger initial calculation
+        btnCalculate.click();
+    }
+</script>
+</body>
+</html>

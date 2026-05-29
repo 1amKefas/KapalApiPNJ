@@ -3,6 +3,67 @@
  * API client, auth guard, navbar, utilities
  */
 
+// =============================================
+// Theme Management
+// =============================================
+
+const THEMES = {
+  LIGHT: 'light',
+  DARK: 'dark'
+};
+
+/**
+ * Get current theme from localStorage or system preference
+ */
+function getCurrentTheme() {
+  const saved = localStorage.getItem('previs_theme');
+  if (saved) return saved;
+  
+  // Check system preference
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return THEMES.DARK;
+  }
+  return THEMES.LIGHT;
+}
+
+/**
+ * Apply theme to document
+ */
+function applyTheme(theme) {
+  const root = document.documentElement;
+  
+  if (theme === THEMES.DARK) {
+    root.setAttribute('data-theme', 'dark');
+    root.style.colorScheme = 'dark';
+  } else {
+    root.removeAttribute('data-theme');
+    root.style.colorScheme = 'light';
+  }
+  
+  localStorage.setItem('previs_theme', theme);
+}
+
+/**
+ * Toggle between light and dark theme
+ */
+function toggleTheme() {
+  const current = getCurrentTheme();
+  const newTheme = current === THEMES.LIGHT ? THEMES.DARK : THEMES.LIGHT;
+  applyTheme(newTheme);
+  return newTheme;
+}
+
+/**
+ * Initialize theme on page load
+ */
+function initializeTheme() {
+  const theme = getCurrentTheme();
+  applyTheme(theme);
+}
+
+// Initialize theme immediately when script loads
+initializeTheme();
+
 const API_BASE = '/api';
 
 // =============================================
@@ -85,7 +146,7 @@ function renderNavbar(activePage) {
           </div>
         </div>
         <div class="logout-menu" id="logout-menu">
-          <button onclick="logout()">Logout</button>
+          <button onclick="logout()" data-i18n="logout">Logout</button>
         </div>
       </div>
     `;
@@ -97,7 +158,8 @@ function renderNavbar(activePage) {
     const tabs = [
       { id: 'dashboard', label: 'Dashboard', icon: 'assets/dahsboard_icon.png', href: '/dashboard.html' },
       { id: 'analytics', label: 'Analytics', icon: 'assets/analytic_icon.png', href: '/analytics.html' },
-      { id: 'settings', label: 'Settings', icon: 'assets/settings_icon.png', href: '#' },
+      { id: 'costBenefit', label: 'Cost Benefit Analysis', icon: 'assets/cost_benefit_icon.png', href: '/cost-benefit.html' },
+      { id: 'settings', label: 'Settings', icon: 'assets/settings_icon.png', href: '/settings.html' },
     ];
 
     subNav.innerHTML = `
@@ -105,19 +167,24 @@ function renderNavbar(activePage) {
         ${tabs.map(t => `
           <a href="${t.href}" class="nav-tab ${activePage === t.id ? 'active' : ''}">
             <img src="${t.icon}" alt="${t.label}">
-            ${t.label}
+            <span data-i18n="${t.id}">${t.label}</span>
           </a>
         `).join('')}
       </div>
       <div class="system-status">
         <span class="status-dot"></span>
-        System Status Operational
+        <span data-i18n="systemStatusOperational">System Status Operational</span>
       </div>
     `;
   }
 
   // Load notification count
   loadNotificationCount();
+  
+  // Apply translation to navbar elements if translatePage is available
+  if (typeof translatePage === 'function') {
+    translatePage();
+  }
 }
 
 async function loadNotificationCount() {

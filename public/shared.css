@@ -423,3 +423,117 @@ button {
   .user-info { display: none; }
   .navbar-title { font-size: 1.3rem; }
 }
+
+/* =============================================
+   Dark Theme Support
+   ============================================= */
+[data-theme="dark"] {
+  --navy: #0F172A;
+  --navy-dark: #030812;
+  --navy-light: #1A2847;
+  --accent: #5B7FFF;
+  --accent-hover: #4A6FEF;
+  --accent-light: rgba(91, 127, 255, 0.15);
+
+  /* Status colors */
+  --healthy: #34D399;
+  --healthy-bg: rgba(52, 211, 153, 0.15);
+  --warning: #FBBF24;
+  --warning-bg: rgba(251, 191, 36, 0.15);
+  --critical: #FF6B6B;
+  --critical-bg: rgba(255, 107, 107, 0.15);
+
+  /* Neutrals */
+  --bg: #0F172A;
+  --card: #1F2937;
+  --card-border: #374151;
+  --text-primary: #F3F4F6;
+  --text-secondary: #D1D5DB;
+  --text-muted: #9CA3AF;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.5), 0 8px 10px -6px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .top-navbar {
+  background: linear-gradient(135deg, #030812, #0F172A);
+}
+
+[data-theme="dark"] .sub-nav {
+  background: var(--card);
+  border-bottom-color: var(--card-border);
+}
+
+[data-theme="dark"] .nav-tab {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .nav-tab:hover {
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+[data-theme="dark"] .nav-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+[data-theme="dark"] .card {
+  background: var(--card);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4B5563 50%, #374151 75%);
+}
+
+/* Dark theme for forms and inputs */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: var(--card);
+  color: var(--text-primary);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+/* Dark theme for buttons */
+[data-theme="dark"] .btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--card-border);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Dark theme for tables and lists */
+[data-theme="dark"] table {
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] th,
+[data-theme="dark"] td {
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] tr:hover {
+  background: rgba(59, 95, 230, 0.08);
+}
