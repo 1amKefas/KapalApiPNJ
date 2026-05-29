@@ -128,7 +128,7 @@ function renderNavbar(activePage) {
   if (topNav) {
     topNav.innerHTML = `
       <div class="navbar-brand">
-        <div class="navbar-logo"></div>
+        <img src="assets/logo_previs.png" alt="PreVis Logo" class="logo-image" background="transparent" width="80" height="80">
         <span class="navbar-title">PreVis</span>
       </div>
       <div class="navbar-right">
@@ -158,7 +158,7 @@ function renderNavbar(activePage) {
     const tabs = [
       { id: 'dashboard', label: 'Dashboard', icon: 'assets/dahsboard_icon.png', href: '/dashboard.html' },
       { id: 'analytics', label: 'Analytics', icon: 'assets/analytic_icon.png', href: '/analytics.html' },
-      { id: 'costBenefit', label: 'Cost Benefit Analysis', icon: 'assets/cost_benefit_icon.png', href: '/cost-benefit.html' },
+      { id: 'costBenefit', label: 'Cost Benefit Analysis', icon: 'assets/cost-benefit_icon.png', href: '/cost-benefit.html' },
       { id: 'settings', label: 'Settings', icon: 'assets/settings_icon.png', href: '/settings.html' },
     ];
 
