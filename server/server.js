@@ -23,6 +23,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/machines', require('./routes/machines'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/chat', require('./routes/chat'));
 
 // Fallback to login page
 app.get('/', (req, res) => {

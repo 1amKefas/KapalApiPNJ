@@ -1,253 +1,88 @@
-# PreVis — Predictive Maintenance Dashboard
+# PreVis
 
-> **Transforming Data into Actionable Foresight**
+PreVis is a predictive maintenance dashboard for monitoring industrial machines. It displays machine health, sensor telemetry, failure predictions, maintenance alerts, and real-time simulator data.
 
-PreVis is a full-stack web application for **machine predictive maintenance**. Technicians can log in to monitor machine health status (Healthy / Warning / Critical), view real-time sensor readings, analyze parameter trends, and receive anomaly notifications — all powered by a PostgreSQL database and simulated AI predictions.
+The dashboard also includes an optional AI assistant powered by Ollama for questions about monitored machines and predictive maintenance.
 
----
+## Features
 
-## 📸 Screenshots
+- Machine health overview with Normal, Warning, and Critical statuses
+- Real-time sensor telemetry and simulator updates
+- Machine analytics and Remaining Useful Life (RUL) predictions
+- Maintenance alerts and notifications
+- Cost-benefit overview
+- Ollama-powered AI assistant
 
-| Login | Dashboard |
-|-------|-----------|
-| Split-panel login with S-curve divider | Summary cards + machine health gauge grid |
+## Tech Stack
 
-| Analytics Detail | Notifications |
-|-----------------|---------------|
-| RUL, health score, trend chart | Filterable anomaly table with pagination |
+- Frontend: HTML, CSS, JavaScript, Chart.js
+- Backend: Node.js, Express, Socket.IO
+- Database: PostgreSQL
+- AI assistant: Ollama
 
----
+## Requirements
 
-## 🛠️ Tech Stack
+- Node.js 18 or newer
+- PostgreSQL 14 or newer
+- Ollama, optional for the AI assistant
 
-### Frontend
-| Technology | Purpose |
-|-----------|---------|
-| HTML5 | Semantic page structure |
-| CSS3 (Vanilla) | Styling, animations, responsive design |
-| JavaScript (ES6+) | Logic, API calls, DOM manipulation |
-| Chart.js 4.4 | Parameter trend charts & sparklines |
-| chartjs-plugin-annotation | Predicted failure markers |
-| Google Fonts (Inter) | Typography |
+## Installation
 
-### Backend
-| Technology | Purpose |
-|-----------|---------|
-| Node.js 22 | Runtime environment |
-| Express 4.21 | HTTP server & REST API |
-| pg (node-postgres) 8.13 | PostgreSQL client |
-| bcryptjs 2.4 | Password hashing |
-| cors 2.8 | Cross-origin resource sharing |
-| dotenv 16.4 | Environment configuration |
+Clone the repository and run the setup script:
 
-### Database
-| Technology | Purpose |
-|-----------|---------|
-| PostgreSQL 18 | Relational database |
-
----
-
-## 🗄️ Database Schema
-
-### `users` — Authentication
-| Column | Type | Description |
-|--------|------|-------------|
-| user_id | SERIAL (PK) | Auto-increment ID |
-| username | VARCHAR(50) | Unique username |
-| email | VARCHAR(100) | Unique email |
-| password | VARCHAR(255) | Bcrypt hashed password |
-| full_name | VARCHAR(100) | Display name |
-| role | VARCHAR(20) | admin / technician |
-
-### `machines` — Machine Master Data
-| Column | Type | Description |
-|--------|------|-------------|
-| machine_id | VARCHAR(50) (PK) | e.g. M-01, M-02 |
-| model_type | VARCHAR(100) | Machine model |
-| install_date | DATE | Installation date |
-| location | VARCHAR(100) | Workshop / area |
-
-### `sensor_telemetry` — Real-time Sensor Readings
-| Column | Type | Description |
-|--------|------|-------------|
-| id | BIGSERIAL (PK) | Auto-increment |
-| machine_id | VARCHAR(50) (FK) | → machines |
-| timestamp | TIMESTAMPTZ | Reading time |
-| temperature | FLOAT | °C |
-| vibration | FLOAT | mm/s |
-| pressure | FLOAT | bar |
-| rpm | INT | Revolutions per minute |
-| power | FLOAT | kW |
-
-### `maintenance_logs` — Service History
-| Column | Type | Description |
-|--------|------|-------------|
-| log_id | SERIAL (PK) | Auto-increment |
-| machine_id | VARCHAR(50) (FK) | → machines |
-| date | TIMESTAMP | Service date |
-| type | VARCHAR(20) | Preventive / Corrective |
-| parts_replaced | TEXT | Components replaced |
-| technician | VARCHAR(100) | Technician name |
-
-### `predictions` — AI Model Output (Hybrid LSTM-GRU)
-| Column | Type | Description |
-|--------|------|-------------|
-| pred_id | BIGSERIAL (PK) | Auto-increment |
-| machine_id | VARCHAR(50) (FK) | → machines |
-| timestamp | TIMESTAMPTZ | Prediction time |
-| rul_estimated | FLOAT | Remaining Useful Life (days) |
-| failure_prob | FLOAT | Failure probability (0.0–1.0) |
-| alert_level | VARCHAR(10) | Normal / Warning / Critical |
-
----
-
-## 📁 Project Structure
-
-```
-KapalApiPNJ/
-├── server/
-│   ├── server.js              # Express entry point
-│   ├── db.js                  # PostgreSQL connection pool
-│   ├── seed.js                # Schema creation + sample data
-│   ├── .env                   # Database config
-│   ├── package.json
-│   └── routes/
-│       ├── auth.js            # POST /api/auth/login
-│       ├── machines.js        # GET /api/machines, /:id, /:id/telemetry
-│       ├── dashboard.js       # GET /api/dashboard/summary
-│       └── notifications.js   # GET /api/notifications
-├── public/                    # Static files (served by Express)
-│   ├── login.html + login.css
-│   ├── dashboard.html + dashboard.css
-│   ├── analytics.html + analytics.css
-│   ├── notifications.html + notifications.css
-│   ├── shared.css             # Design system & shared components
-│   ├── shared.js              # API client, auth guard, utilities
-│   └── assets/
-│       ├── machines/          # Machine images (4 variants)
-│       ├── login_icon.png     # Login illustration
-│       ├── total_machine_icon.png
-│       ├── critical_icon.png
-│       ├── warning_icon.png
-│       ├── healthy_icon.png
-│       ├── dahsboard_icon.png
-│       ├── analytic_icon.png
-│       └── settings_icon.png
-├── IMI LoFi/                  # Original wireframe designs
-│   ├── Login.png
-│   ├── Dashboard.png
-│   ├── Analytics.png
-│   └── Notifications.png
-├── .gitignore
-└── README.md
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- **Node.js** ≥ 18
-- **PostgreSQL** ≥ 14 (running)
-
-### Quick Start (one command)
 ```bash
-git clone https://github.com/your-username/KapalApiPNJ.git
+git clone <repository-url>
 cd KapalApiPNJ
 ./setup.sh
 ```
 
-The setup script will automatically:
-1. ✅ Check prerequisites (Node.js, PostgreSQL)
-2. ✅ Install npm dependencies
-3. ✅ Create `.env` from `.env.example`
-4. ✅ Verify PostgreSQL connection
-5. ✅ Create database, tables, and seed sample data
+The script installs dependencies, creates `server/.env`, and seeds the PostgreSQL database.
 
-Then start the server:
-```bash
-cd server && node server.js
-```
-Open **http://localhost:3000** in your browser.
+Start the application:
 
-> **Note:** The database and sample data are **not** included in the repository. The `seed.js` script generates everything locally in your PostgreSQL instance.
-
----
-
-### Manual Setup (alternative)
-
-<details>
-<summary>Click to expand manual steps</summary>
-
-#### 1. Install dependencies
 ```bash
 cd server
-npm install
+npm start
 ```
 
-#### 2. Configure database
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## AI Assistant
+
+Install Ollama and download the configured model:
+
 ```bash
-cp .env.example .env
+ollama pull qwen3.5:0.8b
+ollama serve
 ```
-Edit `server/.env` with your PostgreSQL credentials:
+
+The model and Ollama host can be changed in `server/.env`:
+
 ```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=previs_db
-DB_USER=postgres
-DB_PASSWORD=your_password
-PORT=3000
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=qwen3.5:0.8b
 ```
 
-#### 3. Seed the database
-```bash
-node seed.js
-```
-This creates all 5 tables and populates:
-- 3 users
-- 24 machines
-- ~8,000 telemetry rows (7 days of readings)
-- ~90 maintenance logs
-- ~190 AI predictions
-
-#### 4. Start the server
-```bash
-node server.js
-```
-
-#### 5. Open in browser
-```
-http://localhost:3000
-```
-
-</details>
-
----
-
-## 🔐 Default Credentials
+## Default Accounts
 
 | Username | Password | Role |
-|----------|----------|------|
+| --- | --- | --- |
 | `admin` | `admin123` | Admin |
 | `teknisi1` | `tech123` | Technician |
 | `teknisi2` | `tech123` | Technician |
 
----
+## Manual Setup
 
-## 📡 API Endpoints
+```bash
+cd server
+npm install
+cp .env.example .env
+npm run seed
+npm start
+```
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/login` | Authenticate user |
-| GET | `/api/dashboard/summary` | Machine status counts |
-| GET | `/api/machines` | All machines + latest status |
-| GET | `/api/machines/:id` | Machine detail + averages |
-| GET | `/api/machines/:id/telemetry?days=7` | Sensor history |
-| GET | `/api/machines/:id/predictions` | Prediction history |
-| GET | `/api/notifications?status=&page=&limit=` | Paginated alerts |
+Update the PostgreSQL credentials in `server/.env` before seeding if your local configuration is different.
 
----
+## License
 
-## 📄 License
-
-This project is for educational purposes — PNJ (Politeknik Negeri Jakarta).
+This project is for educational purposes at Politeknik Negeri Jakarta.
