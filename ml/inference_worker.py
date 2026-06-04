@@ -5,6 +5,7 @@ import pandas as pd
 import psycopg2
 from dotenv import load_dotenv
 import tensorflow as tf
+import joblib
 
 # 1. Load Environment Variables
 dotenv_path = os.path.join(os.path.dirname(__file__), '../server/.env')
@@ -16,10 +17,16 @@ DB_NAME = os.getenv("DB_NAME", "previs_db")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
-# 2. Load Model Keras
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'models/best_hybrid_model.keras')
-print(f"🤖 Loading trained AI model dari {MODEL_PATH}...")
+# 2. Load Model Keras and Scalers
+PIPELINE_DIR = os.path.join(os.path.dirname(__file__), 'pipeline')
+MODEL_PATH = os.path.join(PIPELINE_DIR, 'best_hybrid_model(Ver1).keras')
+SCALER_X_PATH = os.path.join(PIPELINE_DIR, 'scaler_X.pkl')
+SCALER_Y_PATH = os.path.join(PIPELINE_DIR, 'scaler_y.pkl')
+
+print(f"🤖 Loading trained AI model from {MODEL_PATH}...")
 model = tf.keras.models.load_model(MODEL_PATH)
+scaler_X = joblib.load(SCALER_X_PATH)
+scaler_y = joblib.load(SCALER_Y_PATH)
 
 SEQUENCE_LENGTH = 24 
 
@@ -46,16 +53,14 @@ def run_inference():
         cursor.execute("SELECT machine_id FROM machines;")
         machines = [row[0] for row in cursor.fetchall()]
         
-        # Ambil riwayat log maintenance terakhir untuk semua mesin (untuk kalkulasi days_since_maint)
+        # Ambil riwayat log maintenance terakhir untuk semua mesin
         cursor.execute("SELECT machine_id, MAX(date) FROM maintenance_logs GROUP BY machine_id;")
         maint_dict = {row[0]: row[1] for row in cursor.fetchall()}
         
         for machine_id in machines:
-            # Kita fetch 47 baris (24 timesteps + 23 riwayat masa lalu) 
-            # agar perhitungan rolling_window 24 valid dan tidak ada nilai NaN
             fetch_limit = SEQUENCE_LENGTH + 24 - 1
             query = """
-                SELECT timestamp, temperature, vibration, pressure, rpm 
+                SELECT timestamp, temperature, vibration, pressure, rpm, power 
                 FROM sensor_telemetry 
                 WHERE machine_id = %s 
                 ORDER BY timestamp DESC 
@@ -67,14 +72,14 @@ def run_inference():
             if len(rows) < SEQUENCE_LENGTH:
                 continue
                 
-            # Konversi ke Pandas DataFrame agar bisa diproses persis seperti saat training
-            df = pd.DataFrame(rows, columns=['timestamp', 'temperature', 'vibration', 'pressure', 'rpm'])
+            df = pd.DataFrame(rows, columns=['timestamp', 'temperature', 'vibration', 'pressure', 'rpm', 'power_consumption'])
             df = df.sort_values('timestamp').reset_index(drop=True)
             df['timestamp'] = pd.to_datetime(df['timestamp'])
             
-            # Hitung Rolling Features dari temperature
-            df['temperature_roll_mean'] = df['temperature'].rolling(window=24, min_periods=1).mean()
-            df['temperature_roll_std'] = df['temperature'].rolling(window=24, min_periods=1).std().fillna(0)
+            # Hitung Rolling Features
+            df['temperature_roll24h_mean'] = df['temperature'].rolling(window=24, min_periods=1).mean()
+            df['vibration_roll24h_mean'] = df['vibration'].rolling(window=24, min_periods=1).mean()
+            df['pressure_roll24h_mean'] = df['pressure'].rolling(window=24, min_periods=1).mean()
             
             # Hitung 'days_since_maint'
             last_maint = maint_dict.get(machine_id)
@@ -82,46 +87,46 @@ def run_inference():
                 df['days_since_maint'] = 0.0
             else:
                 last_maint_dt = pd.to_datetime(last_maint)
-                # Menghilangkan zona waktu (tz-naive) agar bisa dikurangkan
                 df_ts_naive = df['timestamp'].dt.tz_localize(None)
                 last_maint_naive = last_maint_dt.tz_localize(None) if last_maint_dt.tzinfo else last_maint_dt
                 
                 delta_seconds = (df_ts_naive - last_maint_naive).dt.total_seconds()
-                df['days_since_maint'] = np.maximum(0, delta_seconds / 86400.0) # 86400 detik = 1 hari
+                df['days_since_maint'] = np.maximum(0, delta_seconds / 86400.0)
             
-            # Pilih hanya 7 kolom fitur yang diminta oleh model dan ambil 24 baris terakhir
-            expected_cols = ['temperature', 'vibration', 'pressure', 'rpm', 'temperature_roll_mean', 'temperature_roll_std', 'days_since_maint']
+            # 9 Fitur yang diharapkan
+            expected_cols = [
+                'temperature', 'vibration', 'pressure', 'rpm', 'power_consumption', 
+                'temperature_roll24h_mean', 'vibration_roll24h_mean', 'pressure_roll24h_mean', 
+                'days_since_maint'
+            ]
             df_seq = df[expected_cols].tail(SEQUENCE_LENGTH)
             
-            # Bentuk ulang array ke bentuk (1, 24, 7) untuk Keras
-            input_features = df_seq.values.astype(np.float32)
+            # Scaling fitur
+            scaled_features = scaler_X.transform(df_seq)
+            
+            # Bentuk ulang array ke bentuk (1, 24, 9)
+            input_features = scaled_features.astype(np.float32)
             input_data = np.expand_dims(input_features, axis=0)
             
             # Jalankan prediksi
-            predictions = model.predict(input_data, verbose=0) 
+            predictions = model.predict(input_data, verbose=0)
             
-            # Model ternyata HANYA mengeluarkan 1 nilai (prediksi RUL)
-            flat_preds = np.ravel(predictions)
-            rul_raw = float(flat_preds[0])
-            
-            # Hitung RUL dan PAKSA kembali menjadi float bawaan Python 
-            # agar psycopg2 PostgreSQL tidak kebingungan
-            if rul_raw > 0:
-                rul_estimated = float(np.expm1(rul_raw))
-            else:
-                rul_estimated = float(max(0.0, rul_raw))
+            # Inverse transform target (RUL)
+            rul_raw = float(np.ravel(predictions)[0])
+            rul_estimated_scaled = np.array([[rul_raw]])
+            rul_estimated_unscaled = scaler_y.inverse_transform(rul_estimated_scaled)
+            rul_estimated = float(rul_estimated_unscaled[0][0])
+            rul_estimated = max(0.0, rul_estimated)
             
             # Karena model tidak mengeluarkan failure_prob, kita hitung otomatis (Logika Heuristik)
             if rul_estimated <= 7.0:
-                failure_prob = 0.85  # RUL di bawah 7 hari -> 85% Risiko (Critical)
+                failure_prob = 0.85
             elif rul_estimated <= 21.0:
-                failure_prob = 0.40  # RUL di bawah 21 hari -> 40% Risiko (Warning)
+                failure_prob = 0.40
             else:
-                failure_prob = 0.05  # RUL di atas 21 hari -> 5% Risiko (Sehat)
+                failure_prob = 0.05
                 
-            # Pastikan probabilitas tidak kurang dari 0 atau lebih dari 1 (pastikan juga float Python)
             failure_prob = float(max(0.0, min(1.0, failure_prob)))
-            
             alert_level = determine_alert_level(failure_prob, rul_estimated)
             
             # Simpan hasil prediksi
@@ -132,7 +137,7 @@ def run_inference():
             cursor.execute(insert_query, (machine_id, rul_estimated, failure_prob, alert_level))
             
         conn.commit()
-        print("✅ Inference real-time sukses. Model (shape: 24x7) memprediksi data terbaru.")
+        print("✅ Inference real-time sukses. Model (shape: 24x9) memprediksi data terbaru.")
         
     except Exception as e:
         conn.rollback()
@@ -145,4 +150,4 @@ if __name__ == "__main__":
     print("🚀 PreVis AI Inference Worker is running...")
     while True:
         run_inference()
-        time.sleep(60) # Berjalan otomatis tiap menit
+        time.sleep(60)

@@ -162,4 +162,21 @@ router.get('/:id/predictions', async (req, res) => {
   }
 });
 
+// GET /api/machines/:id/maintenance — Maintenance logs history
+router.get('/:id/maintenance', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(`
+      SELECT * FROM maintenance_logs
+      WHERE machine_id = $1
+      ORDER BY date DESC
+      LIMIT 20
+    `, [id]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Maintenance logs error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

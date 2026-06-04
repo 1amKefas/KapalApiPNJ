@@ -111,22 +111,22 @@ async function getMachineContext() {
       LIMIT 10
     `);
 
-    let context = `=== CURRENT SYSTEM STATUS ===\n`;
-    context += `Total Machines: ${summary.total}\n`;
-    context += `Critical: ${summary.critical} | Warning: ${summary.warning} | Healthy: ${summary.healthy}\n\n`;
+    let context = "=== CURRENT SYSTEM STATUS ===\n";
+    context += "Total Machines: " + summary.total + "\n";
+    context += "Critical: " + summary.critical + " | Warning: " + summary.warning + " | Healthy: " + summary.healthy + "\n\n";
 
     if (alertsResult.rows.length > 0) {
-      context += `=== RECENT ALERTS ===\n`;
+      context += "=== RECENT ALERTS ===\n";
       alertsResult.rows.forEach(a => {
-        context += `- ${a.machine_id}: ${a.alert_level} (Failure prob: ${(a.failure_prob * 100).toFixed(1)}%, RUL: ${a.rul_estimated?.toFixed(1) ?? 'N/A'} days) at ${new Date(a.timestamp).toISOString()}\n`;
+        context += "- " + a.machine_id + ": " + a.alert_level + " (Failure prob: " + (a.failure_prob * 100).toFixed(1) + "%, RUL: " + (a.rul_estimated?.toFixed(1) ?? 'N/A') + " days) at " + new Date(a.timestamp).toISOString() + "\n";
       });
-      context += '\n';
+      context += "\n";
     }
 
     if (sensorResult.rows.length > 0) {
-      context += `=== RECENT SENSOR AVERAGES (last 1h) ===\n`;
+      context += "=== RECENT SENSOR AVERAGES (last 1h) ===\n";
       sensorResult.rows.forEach(s => {
-        context += `- ${s.machine_id}: Temp=${s.avg_temp}°C, Vibration=${s.avg_vib}mm/s, Pressure=${s.avg_pressure}bar, RPM=${s.avg_rpm}\n`;
+        context += "- " + s.machine_id + ": Temp=" + s.avg_temp + "°C, Vibration=" + s.avg_vib + "mm/s, Pressure=" + s.avg_pressure + "bar, RPM=" + s.avg_rpm + "\n";
       });
     }
 

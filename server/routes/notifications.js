@@ -27,8 +27,12 @@ router.get('/', async (req, res) => {
     // Count total
     const countResult = await pool.query(`
       SELECT COUNT(*) AS total
-      FROM predictions p
-      JOIN machines m ON p.machine_id = m.machine_id
+      FROM machines m
+      INNER JOIN LATERAL (
+        SELECT alert_level FROM predictions
+        WHERE machine_id = m.machine_id
+        ORDER BY timestamp DESC LIMIT 1
+      ) p ON true
       ${whereClause}
     `, params);
 
@@ -39,15 +43,20 @@ router.get('/', async (req, res) => {
     const result = await pool.query(`
       SELECT
         p.pred_id,
-        p.machine_id,
+        m.machine_id,
         p.timestamp,
         p.rul_estimated,
         p.failure_prob,
         p.alert_level,
         m.model_type,
         m.location
-      FROM predictions p
-      JOIN machines m ON p.machine_id = m.machine_id
+      FROM machines m
+      INNER JOIN LATERAL (
+        SELECT pred_id, timestamp, rul_estimated, failure_prob, alert_level
+        FROM predictions
+        WHERE machine_id = m.machine_id
+        ORDER BY timestamp DESC LIMIT 1
+      ) p ON true
       ${whereClause}
       ORDER BY p.timestamp DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}

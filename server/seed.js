@@ -97,7 +97,9 @@ async function seed() {
         date            TIMESTAMP,
         type            VARCHAR(20),
         parts_replaced  TEXT,
-        technician      VARCHAR(100)
+        technician      VARCHAR(100),
+        nlp_topic       VARCHAR(50),
+        nlp_topic_desc  TEXT
       );
 
       -- Predictions (AI output)
