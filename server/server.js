@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
+const { spawn } = require('child_process');
 const pool = require('./db');
 require('dotenv').config();
 
@@ -150,4 +151,32 @@ server.listen(PORT, () => {
   console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard.html`);
   console.log(`🎛️  Simulator: http://localhost:${PORT}/simulator.html`);
   console.log(`🔐 Login: http://localhost:${PORT}/login.html\n`);
+
+  // Start the NLP service
+  const nlpDir = path.join(__dirname, '..', 'nlp');
+  console.log(`🐍 Starting NLP service from ${nlpDir}...`);
+  
+  const nlpProcess = spawn('bash', ['-c', 'source venv/bin/activate && python nlp_service.py'], {
+    cwd: nlpDir,
+    stdio: 'inherit'
+  });
+
+  nlpProcess.on('error', (err) => {
+    console.error(`❌ Failed to start NLP service: ${err.message}`);
+  });
+
+  nlpProcess.on('close', (code) => {
+    console.log(`🐍 NLP service exited with code ${code}`);
+  });
+
+  // Ensure NLP service is killed when node process exits
+  process.on('SIGINT', () => {
+    nlpProcess.kill('SIGINT');
+    process.exit();
+  });
+  
+  process.on('SIGTERM', () => {
+    nlpProcess.kill('SIGTERM');
+    process.exit();
+  });
 });

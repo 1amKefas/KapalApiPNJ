@@ -1,0 +1,74 @@
+{
+  "intents": [
+    {
+      "intent": "machine_status",
+      "examples": [
+        "is M-01 working properly",
+        "give me the status of machine M-12",
+        "M-05 condition check",
+        "how is the health of M-20",
+        "are the machines doing okay"
+      ]
+    },
+    {
+      "intent": "sensor_query",
+      "examples": [
+        "what is the current pressure for M-03",
+        "show me the temp of M-11",
+        "check the rpm on M-02",
+        "get the vibration data for M-09",
+        "power consumption of M-18"
+      ]
+    },
+    {
+      "intent": "maintenance_info",
+      "examples": [
+        "when was M-01 last repaired",
+        "maintenance schedule for M-12",
+        "show the service logs for M-05",
+        "when is the next service due for M-20",
+        "did anyone fix M-03 recently"
+      ]
+    },
+    {
+      "intent": "system_overview",
+      "examples": [
+        "give me a summary of all machines",
+        "how many machines are currently online",
+        "show me the whole dashboard",
+        "what is the total number of machines",
+        "how many are healthy right now"
+      ]
+    },
+    {
+      "intent": "alert_check",
+      "examples": [
+        "show me the recent notifications",
+        "are there any alarms I should know about",
+        "which machines have warnings right now",
+        "check for any new alerts",
+        "are there any critical issues"
+      ]
+    },
+    {
+      "intent": "rul_query",
+      "examples": [
+        "when is M-01 going to fail",
+        "show the RUL for M-12",
+        "estimated time to failure for M-05",
+        "how long until M-20 breaks",
+        "remaining life of M-03"
+      ]
+    },
+    {
+      "intent": "unknown",
+      "examples": [
+        "good evening",
+        "what is your name",
+        "how do I use this system",
+        "can you show me a picture",
+        "I need some support"
+      ]
+    }
+  ]
+}

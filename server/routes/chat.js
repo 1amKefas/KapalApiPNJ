@@ -4,6 +4,67 @@ const pool = require('../db');
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'qwen3.5:0.8b';
+const NLP_SERVICE_URL = process.env.NLP_SERVICE_URL || 'http://localhost:5001';
+
+/**
+ * Call the Python NLP service to preprocess a message.
+ * Returns structured NLP analysis (intent, entities, pipeline debug).
+ * Returns null if the NLP service is unavailable.
+ */
+async function analyzeWithNLP(message) {
+  try {
+    const response = await fetch(`${NLP_SERVICE_URL}/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+      signal: AbortSignal.timeout(5000), // 5s timeout
+    });
+
+    if (!response.ok) {
+      console.error('NLP service error:', response.status);
+      return null;
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error('NLP service unavailable:', err.message);
+    return null;
+  }
+}
+
+/**
+ * Build an NLP context string to inject into the LLM system prompt.
+ * This enriches the LLM with structured information extracted by the NLP pipeline.
+ */
+function buildNLPContext(nlpResult) {
+  if (!nlpResult) return '';
+
+  const { intent, confidence, entities, pipeline } = nlpResult;
+
+  let context = '\n=== NLP PREPROCESSING RESULTS ===\n';
+  context += `Detected Intent: ${intent} (confidence: ${(confidence * 100).toFixed(1)}%)\n`;
+
+  if (entities.machine_ids && entities.machine_ids.length > 0) {
+    context += `Referenced Machines: ${entities.machine_ids.join(', ')}\n`;
+  }
+
+  if (entities.sensor_types && entities.sensor_types.length > 0) {
+    context += `Referenced Sensors: ${entities.sensor_types.join(', ')}\n`;
+  }
+
+  if (pipeline && pipeline.step_4_after_stemming) {
+    context += `Key Terms (stemmed): ${pipeline.step_4_after_stemming.join(', ')}\n`;
+  }
+
+  if (pipeline && pipeline.step_5_tfidf_top_features) {
+    const topFeatures = pipeline.step_5_tfidf_top_features.slice(0, 5);
+    context += `Top TF-IDF Features: ${topFeatures.map(f => `${f[0]}(${f[1]})`).join(', ')}\n`;
+  }
+
+  context += '\nUse the above NLP analysis to better understand the user\'s question and provide a more targeted response.\n';
+
+  return context;
+}
 
 /**
  * Fetch current machine context from PostgreSQL
@@ -80,6 +141,9 @@ async function getMachineContext() {
  * POST /api/chat
  * Body: { message: string, history: [{ role, content }] }
  * Response: SSE stream of tokens
+ *
+ * Flow: User message → NLP Pipeline (preprocess) → Ollama LLM (generate)
+ * The NLP results are injected into the LLM prompt for better understanding.
  */
 router.post('/', async (req, res) => {
   const { message, history = [] } = req.body;
@@ -88,7 +152,32 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  // Fetch live machine context
+  // Set up SSE headers early to stream status
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders();
+
+  res.write(`data: ${JSON.stringify({ status: 'Processing NLP...' })}\n\n`);
+
+  // Step 1: Run NLP Pipeline (preprocessing)
+  const nlpResult = await analyzeWithNLP(message);
+  if (!nlpResult) {
+    res.write(`data: ${JSON.stringify({ error: 'NLP service is down. Please wait for it to start.' })}\n\n`);
+    res.write('data: [DONE]\n\n');
+    return res.end();
+  }
+  const nlpContext = buildNLPContext(nlpResult);
+
+  // Send NLP debug info as an SSE event (frontend can use or ignore)
+  if (nlpResult) {
+    res.write(`data: ${JSON.stringify({ nlp: nlpResult })}\n\n`);
+  }
+
+  res.write(`data: ${JSON.stringify({ status: 'Querying Database...' })}\n\n`);
+
+  // Step 2: Fetch live machine context from DB
   const machineContext = await getMachineContext();
 
   const systemPrompt = `You are **PreVis AI Assistant**, an expert in predictive maintenance for industrial machinery. You are embedded in the PreVis Dashboard, a monitoring system for ship/industrial equipment at PNJ (Politeknik Negeri Jakarta).
@@ -108,10 +197,11 @@ Your capabilities:
 
 Current live data from the system:
 ${machineContext}
-
+${nlpContext}
 Guidelines:
 - Be concise but thorough
 - Use the live data above when answering questions about current machine status
+- Use the NLP preprocessing results to better understand the user's intent and referenced entities
 - If asked about a specific machine, reference the data if available
 - Format responses with markdown when helpful (bold, lists, code)
 - If you don't have enough data to answer, say so honestly
@@ -125,12 +215,7 @@ Guidelines:
     { role: 'user', content: message },
   ];
 
-  // Set up SSE headers
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no');
-  res.flushHeaders();
+  res.write(`data: ${JSON.stringify({ status: 'Thinking...' })}\n\n`);
 
   try {
     const ollamaResponse = await fetch(`${OLLAMA_HOST}/api/chat`, {
@@ -272,27 +357,67 @@ Guidelines:
 });
 
 /**
+ * GET /api/chat/nlp-debug
+ * Query: ?message=...
+ * Returns the full NLP pipeline analysis for a message (for debugging/demo).
+ */
+router.get('/nlp-debug', async (req, res) => {
+  const message = req.query.message || '';
+  if (!message.trim()) {
+    return res.status(400).json({ error: 'message query param is required' });
+  }
+
+  const nlpResult = await analyzeWithNLP(message);
+  if (!nlpResult) {
+    return res.status(503).json({ error: 'NLP service unavailable' });
+  }
+
+  res.json(nlpResult);
+});
+
+/**
  * GET /api/chat/health
  * Quick check if Ollama is reachable
  */
 router.get('/health', async (req, res) => {
+  // Check Ollama
+  let ollamaStatus = { online: false };
   try {
     const response = await fetch(`${OLLAMA_HOST}/api/tags`);
     if (response.ok) {
       const data = await response.json();
       const models = data.models?.map(m => m.name) || [];
-      return res.json({
-        status: 'ok',
-        ollama: true,
+      ollamaStatus = {
+        online: true,
         model: OLLAMA_MODEL,
         available_models: models,
         model_loaded: models.some(m => m.includes(OLLAMA_MODEL.split(':')[0])),
-      });
+      };
     }
-    res.json({ status: 'error', ollama: false });
   } catch {
-    res.json({ status: 'error', ollama: false, message: 'Cannot reach Ollama' });
+    // Ollama offline
   }
+
+  // Check NLP service
+  let nlpStatus = { online: false };
+  try {
+    const nlpRes = await fetch(`${NLP_SERVICE_URL}/health`);
+    if (nlpRes.ok) {
+      const nlpData = await nlpRes.json();
+      nlpStatus = { online: true, ...nlpData };
+    }
+  } catch {
+    // NLP service offline
+  }
+
+  res.json({
+    status: ollamaStatus.online ? 'ok' : 'error',
+    ollama: ollamaStatus.online,
+    model: ollamaStatus.model,
+    available_models: ollamaStatus.available_models,
+    model_loaded: ollamaStatus.model_loaded,
+    nlp_service: nlpStatus,
+  });
 });
 
 module.exports = router;

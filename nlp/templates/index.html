@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreVis NLP Live Debug</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles are similar but adapted for a list view */
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --gradient-1: #8b5cf6;
+            --gradient-2: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            margin-top: 1rem;
+        }
+
+        .title-area h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-main), var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 0.25rem 0;
+        }
+        
+        .title-area p { margin: 0; color: var(--text-muted); }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background-color: var(--text-muted);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+            border-color: transparent;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+            background-color: white;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+        }
+
+        .status-dot.active {
+            background-color: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        /* Log List */
+        .log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .log-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .log-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .log-main-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .log-message {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .log-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .intent-badge {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .log-details {
+            padding: 0 1.5rem 1.5rem 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            display: none;
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        .log-card.expanded .log-details {
+            display: block;
+            margin-top: 1rem;
+            padding-top: 1.5rem;
+        }
+
+        /* Details styling */
+        .pipeline-step {
+            margin-bottom: 1.5rem;
+            border-left: 2px solid var(--glass-border);
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .pipeline-step:last-child { margin-bottom: 0; }
+
+        .pipeline-step::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .token-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .token {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .token.highlight {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent);
+            color: var(--text-main);
+        }
+
+        .entities-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .entity-box {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 1rem;
+            flex: 1;
+        }
+
+        .entity-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+            background: var(--glass-bg);
+            border-radius: 12px;
+            border: 1px dashed var(--glass-border);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="title-area">
+                <h1>NLP Live Logs</h1>
+                <p>Monitor chat processing in real-time.</p>
+            </div>
+            <div class="controls">
+                <div class="status-indicator">
+                    <div class="status-dot active" id="poll-indicator"></div>
+                    <span id="poll-status">Live Polling</span>
+                </div>
+                <label class="toggle-switch" title="Toggle Auto-Refresh">
+                    <input type="checkbox" id="auto-refresh-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </header>
+
+        <div class="log-list" id="log-container">
+            <div class="empty-state">Loading history...</div>
+        </div>
+    </div>
+
+    <script>
+        const logContainer = document.getElementById('log-container');
+        const autoRefreshToggle = document.getElementById('auto-refresh-toggle');
+        const pollIndicator = document.getElementById('poll-indicator');
+        const pollStatus = document.getElementById('poll-status');
+        
+        let pollInterval = null;
+        let knownTimestamps = new Set();
+        let logsData = [];
+
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/history');
+                const data = await response.json();
+                
+                if (data.history && data.history.length > 0) {
+                    // Check for new logs
+                    let newLogs = data.history.filter(log => !knownTimestamps.has(log.timestamp));
+                    
+                    if (newLogs.length > 0) {
+                        if (logsData.length === 0) logContainer.innerHTML = ''; // clear empty state
+                        
+                        // Add new logs to UI
+                        newLogs.forEach(log => {
+                            knownTimestamps.add(log.timestamp);
+                            logsData.unshift(log); // Add to beginning
+                            const card = createLogCard(log);
+                            logContainer.insertBefore(card, logContainer.firstChild);
+                        });
+                    }
+                } else if (logsData.length === 0) {
+                    logContainer.innerHTML = '<div class="empty-state">No chat history yet. Send a message in the chatbot to see logs here.</div>';
+                }
+            } catch (err) {
+                console.error("Failed to fetch history", err);
+            }
+        }
+
+        function createLogCard(log) {
+            const card = document.createElement('div');
+            card.className = 'log-card';
+            
+            const time = new Date(log.timestamp).toLocaleTimeString();
+            const conf = (log.confidence * 100).toFixed(1) + '%';
+            
+            // Format entities
+            let entHtml = '';
+            let machineCount = log.entities.machine_ids?.length || 0;
+            let sensorCount = log.entities.sensor_types?.length || 0;
+            
+            card.innerHTML = `
+                <div class="log-header" onclick="this.parentElement.classList.toggle('expanded')">
+                    <div class="log-main-info">
+                        <div class="log-message">"${escapeHtml(log.original)}"</div>
+                        <div class="log-meta">
+                            <span>${time}</span>
+                            <span class="intent-badge">${log.intent} (${conf})</span>
+                            <span>${machineCount} Machines, ${sensorCount} Sensors</span>
+                        </div>
+                    </div>
+                    <div style="color: var(--text-muted);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                <div class="log-details">
+                    <div class="entities-row">
+                        <div class="entity-box">
+                            <div class="entity-title">Machine IDs</div>
+                            <div class="token-list">
+                                ${formatList(log.entities.machine_ids, '🤖 ')}
+                            </div>
+                        </div>
+                        <div class="entity-box">
+                            <div class="entity-title">Sensor Types</div>
+                            <div class="token-list">
+                                ${formatList(log.entities.sensor_types, '📊 ')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-top:0; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.8rem; margin-bottom: 1rem;">Pipeline Steps</h4>
+                    
+                    <div class="pipeline-step">
+                        <div class="step-title">1. Tokenization</div>
+                        <div class="token-list">${formatTokens(log.pipeline.step_1_tokens)}</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-title">2. Normalization</div>
+                        <div class="token-list">${formatTokens(log.pipeline.step_2_normalized)}</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-title">3. Stop Words Removed</div>
+                        <div class="token-list">${formatTokens(log.pipeline.step_3_after_stopwords)}</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-title">4. Stemming</div>
+                        <div class="token-list">${formatTokens(log.pipeline.step_4_after_stemming)}</div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="step-title">5. TF-IDF Features</div>
+                        <div class="token-list">
+                            ${(log.pipeline.step_5_tfidf_top_features || []).map(f => 
+                                `<span class="token highlight">${escapeHtml(f[0])} <span style="opacity:0.6; font-size:0.8em">${f[1]}</span></span>`
+                            ).join('') || '<span class="token">None</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        function formatTokens(arr) {
+            if (!arr || arr.length === 0) return '<span class="token">None</span>';
+            return arr.map(t => `<span class="token">${escapeHtml(t)}</span>`).join('');
+        }
+        
+        function formatList(arr, prefix='') {
+            if (!arr || arr.length === 0) return '<span style="color: var(--text-muted); font-size: 0.85rem;">None</span>';
+            return arr.map(t => `<span class="token highlight">${prefix}${escapeHtml(t)}</span>`).join('');
+        }
+
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return unsafe;
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function togglePolling() {
+            if (autoRefreshToggle.checked) {
+                pollInterval = setInterval(fetchHistory, 2000);
+                pollIndicator.classList.add('active');
+                pollStatus.textContent = 'Live Polling';
+            } else {
+                clearInterval(pollInterval);
+                pollIndicator.classList.remove('active');
+                pollStatus.textContent = 'Paused';
+            }
+        }
+
+        autoRefreshToggle.addEventListener('change', togglePolling);
+
+        // Initial fetch and start polling
+        fetchHistory();
+        togglePolling();
+    </script>
+</body>
+</html>

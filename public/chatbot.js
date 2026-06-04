@@ -1,7 +1,7 @@
 /**
  * PreVis — AI Chatbot Widget
  * Self-contained module that injects a floating chat interface
- * powered by Ollama (via /api/chat SSE endpoint)
+ * powered by NLP Pipeline + Ollama (via /api/chat SSE endpoint)
  */
 
 (function () {
@@ -27,7 +27,6 @@
   let isStreaming = false;
   let conversationHistory = [];
   let ollamaOnline = null;
-
   // =============================================
   // DOM Injection
   // =============================================
@@ -170,10 +169,34 @@
   // =============================================
   // State Persistence
   // =============================================
+  function saveConversation() {
+    sessionStorage.setItem('previs_chatbot_history', JSON.stringify(conversationHistory));
+  }
+
   function restoreState() {
+    // Restore panel open/closed
     const wasOpen = sessionStorage.getItem('previs_chatbot_open') === 'true';
     if (wasOpen) {
       togglePanel();
+    }
+
+    // Restore conversation history
+    try {
+      const saved = sessionStorage.getItem('previs_chatbot_history');
+      if (saved) {
+        conversationHistory = JSON.parse(saved);
+        if (conversationHistory.length > 0) {
+          // Hide welcome and re-render all saved messages
+          const welcome = document.getElementById('chatbot-welcome');
+          if (welcome) welcome.style.display = 'none';
+
+          conversationHistory.forEach(msg => {
+            appendMessage(msg.role === 'assistant' ? 'bot' : 'user', msg.content);
+          });
+        }
+      }
+    } catch {
+      conversationHistory = [];
     }
   }
 
@@ -191,7 +214,13 @@
       if (data.status === 'ok' && data.model_loaded) {
         ollamaOnline = true;
         dot.classList.remove('offline');
-        text.textContent = `Powered by ${data.model}`;
+        let statusText = `Powered by ${data.model}`;
+        if (data.nlp_service?.online) {
+          statusText += ' + NLP';
+        } else {
+          statusText += ' (NLP offline)';
+        }
+        text.textContent = statusText;
       } else if (data.status === 'ok' && !data.model_loaded) {
         ollamaOnline = false;
         dot.classList.add('offline');
@@ -223,6 +252,7 @@
     // Add user message
     appendMessage('user', message);
     conversationHistory.push({ role: 'user', content: message });
+    saveConversation();
 
     // Clear input
     input.value = '';
@@ -275,6 +305,14 @@
 
             try {
               const data = JSON.parse(dataStr);
+
+              // Capture status updates (e.g. "Processing NLP...", "Thinking...")
+              if (data.status) {
+                const statusEl = document.getElementById('chatbot-typing-status-text');
+                if (statusEl) statusEl.textContent = data.status;
+                continue;
+              }
+
               if (data.error) {
                 botMessage = `⚠️ ${data.error}`;
                 updateBotBubble(botBubble, botMessage);
@@ -313,6 +351,7 @@
 
       if (botMessage) {
         conversationHistory.push({ role: 'assistant', content: botMessage });
+        saveConversation();
       }
 
     } catch (err) {
@@ -329,7 +368,6 @@
     }
   }
 
-  // =============================================
   // DOM Helpers
   // =============================================
   function appendMessage(role, content, isStreaming = false) {
@@ -364,6 +402,7 @@
     el.innerHTML = `
       <div class="chatbot-msg-avatar">${ICONS.bot}</div>
       <div class="chatbot-typing-dots">
+        <span id="chatbot-typing-status-text" style="font-size: 0.75rem; color: var(--text-muted); margin-right: 6px; font-weight: 500;">Processing...</span>
         <span></span><span></span><span></span>
       </div>
     `;
@@ -390,6 +429,7 @@
   function clearChat() {
     const messages = document.getElementById('chatbot-messages');
     conversationHistory = [];
+    sessionStorage.removeItem('previs_chatbot_history');
 
     // Remove all messages except welcome
     const children = Array.from(messages.children);
