@@ -11,51 +11,9 @@
  * Initialize settings page
  */
 function initSettings() {
-  renderLanguageSettings();
   renderThemeSettings();
   renderAccountSettings();
   attachEventListeners();
-}
-
-/**
- * Render language selector
- */
-function renderLanguageSettings() {
-  const container = document.getElementById('language-settings');
-  if (!container) return;
-  
-  const currentLang = getCurrentLanguage();
-  const languages = getAvailableLanguages();
-  
-  container.innerHTML = `
-    <div class="settings-section">
-      <div class="section-header">
-        <h3 data-i18n="language">Language</h3>
-        <p data-i18n="languageDescription">Choose your preferred language</p>
-      </div>
-      <div class="language-options">
-        ${languages.map(lang => `
-          <label class="radio-option">
-            <input 
-              type="radio" 
-              name="language" 
-              value="${lang.code}"
-              ${currentLang === lang.code ? 'checked' : ''}
-              onchange="changeLanguage('${lang.code}')"
-            >
-            <span class="radio-custom"></span>
-            <span class="option-label">${lang.label}</span>
-          </label>
-        `).join('')}
-      </div>
-      <div class="current-selection">
-        <span data-i18n="currentLanguage">Current Language: </span>
-        <strong id="current-lang-display">${getLanguageLabel(currentLang)}</strong>
-      </div>
-    </div>
-  `;
-  
-  translatePage();
 }
 
 /**
@@ -160,28 +118,6 @@ function renderAccountSettings() {
 // =============================================
 
 /**
- * Change language and update UI
- */
-function changeLanguage(lang) {
-  if (setLanguage(lang)) {
-    translatePage();
-    
-    // Update navbar translations
-    if (typeof renderNavbar === 'function') {
-      renderNavbar(getCurrentPage());
-    }
-    
-    // Update current language display
-    const display = document.getElementById('current-lang-display');
-    if (display) {
-      display.textContent = getLanguageLabel(lang);
-    }
-    
-    showNotification('Language changed successfully', 'success');
-  }
-}
-
-/**
  * Change theme and update UI
  */
 function changeTheme(theme) {
@@ -194,15 +130,6 @@ function changeTheme(theme) {
   }
   
   showNotification('Theme changed successfully', 'success');
-}
-
-/**
- * Get language label from code
- */
-function getLanguageLabel(code) {
-  const languages = getAvailableLanguages();
-  const lang = languages.find(l => l.code === code);
-  return lang ? lang.label : code;
 }
 
 /**
@@ -261,4 +188,3 @@ function attachEventListeners() {
     });
   }
 }
-

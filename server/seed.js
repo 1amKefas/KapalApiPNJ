@@ -141,7 +141,7 @@ async function seed() {
     const machineImages = ['machine-1.png', 'machine-2.png', 'machine-3.png', 'machine-4.png'];
 
     const machines = [];
-    for (let i = 1; i <= 24; i++) {
+    for (let i = 1; i <= 20; i++) {
       const id = `M-${String(i).padStart(2, '0')}`;
       const model = modelTypes[i % modelTypes.length];
       const loc = locations[i % locations.length];
@@ -155,7 +155,7 @@ async function seed() {
         [m.id, m.model, m.installDate, m.location]
       );
     }
-    console.log('✅ 24 machines seeded');
+    console.log('✅ 20 machines seeded');
 
     // =========================================
     // SEED SENSOR TELEMETRY (7 days, every 30 min)
@@ -167,7 +167,7 @@ async function seed() {
     // Define machine health profiles
     // 15 healthy, 6 warning, 3 critical (matching wireframe counts)
     const criticalMachines = ['M-03', 'M-06', 'M-19'];
-    const warningMachines = ['M-02', 'M-05', 'M-08', 'M-11', 'M-14', 'M-22'];
+    const warningMachines = ['M-02', 'M-05', 'M-08', 'M-11', 'M-14', 'M-17'];
 
     let telemetryValues = [];
     let telemetryCount = 0;

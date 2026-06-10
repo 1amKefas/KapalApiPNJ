@@ -48,14 +48,14 @@
         <div class="chatbot-header">
           <div class="chatbot-avatar">${ICONS.bot}</div>
           <div class="chatbot-header-info">
-            <div class="chatbot-header-title">PreVis AI Assistant</div>
+            <div class="chatbot-header-title">Asisten AI PreVis</div>
             <div class="chatbot-header-subtitle">
               <span class="chatbot-status-dot" id="chatbot-status-dot"></span>
-              <span id="chatbot-status-text">Checking...</span>
+              <span id="chatbot-status-text">Memeriksa...</span>
             </div>
           </div>
           <div class="chatbot-header-actions">
-            <button class="chatbot-header-btn" id="chatbot-clear-btn" title="Clear chat">
+            <button class="chatbot-header-btn" id="chatbot-clear-btn" title="Bersihkan obrolan">
               ${ICONS.clear}
             </button>
           </div>
@@ -64,12 +64,12 @@
         <div class="chatbot-messages" id="chatbot-messages">
           <div class="chatbot-welcome" id="chatbot-welcome">
             <div class="chatbot-welcome-icon">${ICONS.sparkle}</div>
-            <h3>Hi! I'm your AI assistant 👋</h3>
-            <p>I can help you with machine health analysis, maintenance recommendations, and predictive insights.</p>
+            <h3>Halo! Saya asisten AI Anda 👋</h3>
+            <p>Saya dapat membantu Anda dengan analisis kesehatan mesin, rekomendasi pemeliharaan, dan wawasan prediktif.</p>
             <div class="chatbot-suggestions">
-              <button class="chatbot-suggestion" data-msg="What machines are critical right now?">Critical machines?</button>
-              <button class="chatbot-suggestion" data-msg="Give me a system health overview">System overview</button>
-              <button class="chatbot-suggestion" data-msg="What maintenance actions do you recommend?">Maintenance tips</button>
+              <button class="chatbot-suggestion" data-msg="Mesin apa yang sedang kritis saat ini?">Mesin kritis?</button>
+              <button class="chatbot-suggestion" data-msg="Berikan ringkasan kesehatan sistem">Ringkasan sistem</button>
+              <button class="chatbot-suggestion" data-msg="Apa tindakan pemeliharaan yang disarankan?">Tips pemeliharaan</button>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@
         <div class="chatbot-input-area">
           <div class="chatbot-input-wrapper">
             <textarea class="chatbot-input" id="chatbot-input"
-              placeholder="Ask about machine health..."
+              placeholder="Tanyakan tentang kesehatan mesin..."
               rows="1"
               aria-label="Chat message"></textarea>
           </div>
@@ -214,26 +214,26 @@
       if (data.status === 'ok' && data.model_loaded) {
         ollamaOnline = true;
         dot.classList.remove('offline');
-        let statusText = `Powered by ${data.model}`;
+        let statusText = `Didukung oleh ${data.model}`;
         if (data.nlp_service?.online) {
           statusText += ' + NLP';
         } else {
-          statusText += ' (NLP offline)';
+          statusText += ' (NLP luring)';
         }
         text.textContent = statusText;
       } else if (data.status === 'ok' && !data.model_loaded) {
         ollamaOnline = false;
         dot.classList.add('offline');
-        text.textContent = 'Model not found';
+        text.textContent = 'Model tidak ditemukan';
       } else {
         ollamaOnline = false;
         dot.classList.add('offline');
-        text.textContent = 'Ollama offline';
+        text.textContent = 'Ollama luring';
       }
     } catch {
       ollamaOnline = false;
       dot.classList.add('offline');
-      text.textContent = 'Ollama offline';
+      text.textContent = 'Ollama luring';
     }
   }
 
@@ -356,7 +356,7 @@
 
     } catch (err) {
       removeTyping(typingEl);
-      appendError(`Failed to reach AI assistant. ${ollamaOnline === false ? 'Make sure Ollama is running.' : err.message}`);
+      appendError(`Gagal menghubungi asisten AI. ${ollamaOnline === false ? 'Pastikan Ollama sedang berjalan.' : err.message}`);
       console.error('Chatbot error:', err);
     } finally {
       isStreaming = false;
@@ -402,7 +402,7 @@
     el.innerHTML = `
       <div class="chatbot-msg-avatar">${ICONS.bot}</div>
       <div class="chatbot-typing-dots">
-        <span id="chatbot-typing-status-text" style="font-size: 0.75rem; color: var(--text-muted); margin-right: 6px; font-weight: 500;">Processing...</span>
+        <span id="chatbot-typing-status-text" style="font-size: 0.75rem; color: var(--text-muted); margin-right: 6px; font-weight: 500;">Memproses...</span>
         <span></span><span></span><span></span>
       </div>
     `;

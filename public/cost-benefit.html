@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="shared.css">
     <link rel="stylesheet" href="dashboard.css">
     <script src="shared.js"></script>
-    <title>Document</title>
+    <title>PreVis — Analisis Biaya-Manfaat</title>
 </head>
 <body>
     <!-- Top Navbar -->
@@ -18,7 +18,7 @@
 
 <main class="main-content">
     <div class="page-header">
-        <h1 class="page-title">Cost-Benefit Analysis</h1>
+        <h1 class="page-title">Analisis Biaya & Manfaat</h1>
         <span class="text-muted">Kewirausahaan - ROI & Business Case Predictive Maintenance</span>
     </div>
 
@@ -30,7 +30,7 @@
                 <img src="assets/analytic_icon.png" alt="ROI">
             </div>
             <div class="summary-info">
-                <span class="summary-label">Estimated ROI</span>
+                <span class="summary-label">Estimasi ROI</span>
                 <span class="summary-value" id="roi-result" style="color: var(--healthy)">0%</span>
                 <span class="summary-sub">Dalam 1 Tahun Pertama</span>
             </div>
@@ -41,9 +41,9 @@
                 <img src="assets/total_machine_icon.png" alt="Savings">
             </div>
             <div class="summary-info">
-                <span class="summary-label">Cost Savings</span>
+                <span class="summary-label">Penghematan Biaya</span>
                 <span class="summary-value" id="savings-result">$0</span>
-                <span class="summary-sub">Preventive vs Predictive</span>
+                <span class="summary-sub">Preventif vs Prediktif</span>
             </div>
         </div>
          <!-- Payback Period -->
@@ -52,7 +52,7 @@
                 <img src="assets/dahsboard_icon.png" onerror="this.src='assets/dashboard_icon.png'" alt="Time">
             </div>
             <div class="summary-info">
-                <span class="summary-label">Payback Period</span>
+                <span class="summary-label">Periode Pengembalian Modal</span>
                 <span class="summary-value" id="payback-result">0 Bln</span>
                 <span class="summary-sub">Berdasarkan investasi awal</span>
             </div>
@@ -63,7 +63,7 @@
                 <img src="assets/healthy_icon.png" alt="Uptime">
             </div>
             <div class="summary-info">
-                <span class="summary-label">Downtime Drop</span>
+                <span class="summary-label">Penurunan Downtime</span>
                 <span class="summary-value" style="color: var(--healthy)">45%</span>
                 <span class="summary-sub">Estimasi peningkatan uptime</span>
             </div>
@@ -73,28 +73,28 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
         <!-- ROI Calculator -->
         <div class="card" style="padding: 1.5rem;">
-            <h2 class="section-title" style="margin-bottom: 1rem;">ROI Calculator</h2>
+            <h2 class="section-title" style="margin-bottom: 1rem;">Kalkulator ROI</h2>
             <div class="text-muted mb-2" style="font-size: 0.85rem;">Kalkulasi Return on Investment (ROI) untuk transisi ke LapisAI Predictive Maintenance.</div>
             <div class="calc-form" style="display: flex; flex-direction: column; gap: 1rem;">
                 <div>
-                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Initial Investment (Sensor IoT & Model AI) ($)</label>
+                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Investasi Awal (Sensor IoT & Model AI) ($)</label>
                     <input type="number" id="calc-investment" value="50000" style="width: 100%; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--text-primary);">
                 </div>
                 <div>
-                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Annual Preventive Maintenance Cost ($)</label>
+                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Biaya Perawatan Preventif Tahunan ($)</label>
                     <input type="number" id="calc-preventive" value="200000" style="width: 100%; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--text-primary);">
                 </div>
                 <div>
-                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Estimated Predictive Maintenance Cost ($)</label>
+                    <label class="text-secondary fw-500" style="display:block; margin-bottom: 6px; font-size: 0.9rem;">Estimasi Biaya Perawatan Prediktif ($)</label>
                     <input type="number" id="calc-predictive" value="130000" style="width: 100%; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--text-primary);">
                 </div>
-                <button id="btn-calculate" style="background: var(--accent); color: white; padding: 12px; border-radius: var(--radius-md); font-weight: 600; font-size: 1rem; margin-top: 10px; transition: background 0.2s; cursor: pointer;">Calculate ROI</button>
+                <button id="btn-calculate" style="background: var(--accent); color: white; padding: 12px; border-radius: var(--radius-md); font-weight: 600; font-size: 1rem; margin-top: 10px; transition: background 0.2s; cursor: pointer;">Hitung ROI</button>
             </div>
         </div>
 
         <!-- Business Case Analysis -->
         <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column;">
-            <h2 class="section-title" style="margin-bottom: 1rem;">Business Case & Market Analysis</h2>
+            <h2 class="section-title" style="margin-bottom: 1rem;">Kasus Bisnis & Analisis Pasar</h2>
             <div class="text-secondary" style="line-height: 1.6; font-size: 0.9rem; margin-bottom: 1.5rem;">
                 <p class="mb-1"><strong style="color: var(--navy)">Latar Belakang:</strong> Industri manufaktur mengalami kerugian besar akibat downtime yang tidak terduga. Maintenance tradisional (preventive) memakan biaya besar karena penggantian suku cadang yang terlalu dini atau perbaikan setelah mesin rusak.</p>
                 <p class="mb-1"><strong style="color: var(--navy)">Solusi LapisAI:</strong> Sistem Predictive Maintenance menggunakan sensor IoT dan model Time Series Forecasting (LSTM/GRU) untuk memprediksi sisa umur mesin (RUL), memungkinkan perawatan tepat waktu.</p>

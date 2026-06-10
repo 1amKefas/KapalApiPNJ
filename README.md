@@ -81,6 +81,12 @@ npm run seed
 npm start
 ```
 
+To Run model get the .keras file .pkl, .npz, .json from this gdrive folder: https://drive.google.com/drive/folders/18t9cWmyyS3WWlM6QhYy4OngIr5uc6gFA?usp=drive_link 
+Then after you downloaded all the necessary file you run inference_worker.py in these comprehensive step:
+First you must have virtual environment of any version of python 3.10 and then connect your Local GPU and then type "Conda Activate [your kernel]"
+Second you redirect your path in terminal into cd ml
+Third you run [python inference_worker.py]
+
 Update the PostgreSQL credentials in `server/.env` before seeding if your local configuration is different.
 
 ## License

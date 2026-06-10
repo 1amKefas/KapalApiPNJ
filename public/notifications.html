@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="PreVis Notifications — View machine anomaly alerts, failure predictions, and recommended maintenance actions.">
-  <title>PreVis — Notifications</title>
+  <title>PreVis — Notifikasi</title>
   <link rel="stylesheet" href="shared.css">
   <link rel="stylesheet" href="notifications.css">
 </head>
@@ -19,7 +19,7 @@
   <main class="main-content">
     <!-- Page Header -->
     <div class="page-header">
-      <h1 class="page-title">Notification</h1>
+      <h1 class="page-title">Notifikasi</h1>
     </div>
 
     <!-- Filter Bar -->
@@ -27,17 +27,17 @@
       <div class="filter-left">
         <span class="filter-label">Filter</span>
         <div class="filter-buttons" id="filter-buttons">
-          <button class="filter-btn active" data-status="all">All</button>
-          <button class="filter-btn btn-healthy" data-status="healthy">Healthy</button>
-          <button class="filter-btn btn-warning" data-status="warning">Warning</button>
-          <button class="filter-btn btn-critical" data-status="critical">Critical</button>
+          <button class="filter-btn active" data-status="all">Semua</button>
+          <button class="filter-btn btn-healthy" data-status="healthy">Sehat</button>
+          <button class="filter-btn btn-warning" data-status="warning">Peringatan</button>
+          <button class="filter-btn btn-critical" data-status="critical">Kritis</button>
         </div>
       </div>
       <div class="filter-right">
-        <span class="filter-label">Date</span>
+        <span class="filter-label">Tanggal</span>
         <div class="date-display" id="date-display">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
-          <span id="date-range-text">Loading...</span>
+          <span id="date-range-text">Memuat...</span>
         </div>
       </div>
     </div>
@@ -47,13 +47,13 @@
       <table class="data-table" id="data-table">
         <thead>
           <tr>
-            <th>Timestamp</th>
-            <th>Machine ID</th>
-            <th>Failure Type</th>
+            <th>Waktu</th>
+            <th>ID Mesin</th>
+            <th>Jenis Kerusakan</th>
             <th>Status</th>
-            <th>Anomaly Description</th>
-            <th>Recommended Action</th>
-            <th>Action Status</th>
+            <th>Deskripsi Anomali</th>
+            <th>Rekomendasi Tindakan</th>
+            <th>Status Tindakan</th>
           </tr>
         </thead>
         <tbody id="table-body">
@@ -64,7 +64,7 @@
 
     <!-- Pagination -->
     <div class="pagination-bar" id="pagination-bar">
-      <span class="pagination-info" id="pagination-info">Loading...</span>
+      <span class="pagination-info" id="pagination-info">Memuat...</span>
       <div class="pagination-controls" id="pagination-controls"></div>
     </div>
   </main>
@@ -110,7 +110,7 @@
       } catch (err) {
         console.error('Notifications load error:', err);
         document.getElementById('table-body').innerHTML =
-          '<tr><td colspan="7" class="loading-cell" style="color: var(--critical)">Failed to load notifications</td></tr>';
+          '<tr><td colspan="7" class="loading-cell" style="color: var(--critical)">Gagal memuat notifikasi</td></tr>';
       }
     }
 
@@ -118,16 +118,16 @@
       const tbody = document.getElementById('table-body');
 
       if (notifications.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">No notifications found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">Tidak ada notifikasi ditemukan</td></tr>';
         return;
       }
 
       tbody.innerHTML = notifications.map(n => {
-        const statusClass = n.status === 'Healthy' ? 'healthy'
-          : n.status === 'Warning' ? 'warning' : 'critical';
+        const statusClass = n.status === 'Sehat' ? 'healthy'
+          : n.status === 'Peringatan' ? 'warning' : 'critical';
 
-        const actionClass = n.action_status === 'Closed' ? 'action-closed'
-          : n.action_status === 'In Progress' ? 'action-in-progress' : 'action-open';
+        const actionClass = n.action_status === 'Selesai' ? 'action-closed'
+          : n.action_status === 'Sedang Diproses' ? 'action-in-progress' : 'action-open';
 
         return `
           <tr class="table-row" onclick="location.href='/analytics.html?machine=${n.machine_id}'">
@@ -150,7 +150,7 @@
       const info = document.getElementById('pagination-info');
       const start = (p.page - 1) * p.limit + 1;
       const end = Math.min(p.page * p.limit, p.total);
-      info.textContent = `Showing ${start} to ${end} of ${p.total} entries`;
+      info.textContent = `Menampilkan ${start} hingga ${end} dari ${p.total} entri`;
 
       const controls = document.getElementById('pagination-controls');
       let html = '';

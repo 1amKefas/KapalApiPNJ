@@ -18,8 +18,9 @@ DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
 # 2. Load Model Keras and Scalers
+MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
+MODEL_PATH = os.path.join(MODEL_DIR, 'best_hybrid_model_v2.keras')
 PIPELINE_DIR = os.path.join(os.path.dirname(__file__), 'pipeline')
-MODEL_PATH = os.path.join(PIPELINE_DIR, 'best_hybrid_model(Ver1).keras')
 SCALER_X_PATH = os.path.join(PIPELINE_DIR, 'scaler_X.pkl')
 SCALER_Y_PATH = os.path.join(PIPELINE_DIR, 'scaler_y.pkl')
 
@@ -36,13 +37,30 @@ def get_db_connection():
         user=DB_USER, password=DB_PASSWORD
     )
 
+# ==========================================
+# FUSION LOGIC 2.0 (GABUNGAN RULE-BASED & ML)
+# ==========================================
 def determine_alert_level(failure_prob, rul):
-    if failure_prob >= 0.7 or rul <= 7:
+    """
+    Menentukan status mesin berdasarkan 2 lapis keamanan:
+    1. Aturan Baku (Rule-Based) dari angka RUL.
+    2. Deteksi Dini (Classification) dari probabilitas kegagalan 7 hari.
+    """
+    # KONDISI 1: DARURAT (CRITICAL)
+    # Jika sisa umur benar-benar sudah di bawah 3 hari
+    if rul <= 3.0:
         return 'Critical'
-    elif failure_prob >= 0.3 or rul <= 21:
+    
+    # KONDISI 2: PERINGATAN (WARNING)
+    # Jika RUL masuk zona kuning (3 sampai 14 hari)
+    # ATAU model klasifikasi berteriak ada anomali rusak dalam 7 hari ke depan (>= 0.68)
+    elif rul <= 14.0 or failure_prob >= 0.68:
         return 'Warning'
+        
+    # KONDISI 3: SEHAT (HEALTHY)
+    # RUL masih panjang (> 14 hari) DAN tidak ada anomali terdeteksi
     else:
-        return 'Normal'
+        return 'Healthy'
 
 def run_inference():
     conn = get_db_connection()
@@ -76,7 +94,7 @@ def run_inference():
             df = df.sort_values('timestamp').reset_index(drop=True)
             df['timestamp'] = pd.to_datetime(df['timestamp'])
             
-            # Hitung Rolling Features
+            # Hitung Rolling Features (Bypass Noise)
             df['temperature_roll24h_mean'] = df['temperature'].rolling(window=24, min_periods=1).mean()
             df['vibration_roll24h_mean'] = df['vibration'].rolling(window=24, min_periods=1).mean()
             df['pressure_roll24h_mean'] = df['pressure'].rolling(window=24, min_periods=1).mean()
@@ -93,7 +111,7 @@ def run_inference():
                 delta_seconds = (df_ts_naive - last_maint_naive).dt.total_seconds()
                 df['days_since_maint'] = np.maximum(0, delta_seconds / 86400.0)
             
-            # 9 Fitur yang diharapkan
+            # 9 Fitur Sinyal Emas
             expected_cols = [
                 'temperature', 'vibration', 'pressure', 'rpm', 'power_consumption', 
                 'temperature_roll24h_mean', 'vibration_roll24h_mean', 'pressure_roll24h_mean', 
@@ -101,32 +119,29 @@ def run_inference():
             ]
             df_seq = df[expected_cols].tail(SEQUENCE_LENGTH)
             
-            # Scaling fitur
+            # Normalisasi menggunakan scaler_X ASLI (StandardScaler)
             scaled_features = scaler_X.transform(df_seq)
             
-            # Bentuk ulang array ke bentuk (1, 24, 9)
-            input_features = scaled_features.astype(np.float32)
-            input_data = np.expand_dims(input_features, axis=0)
+            # Bentuk ulang array ke Tensor 3D: [1, 24, 9]
+            input_data = np.expand_dims(scaled_features.astype(np.float32), axis=0)
             
-            # Jalankan prediksi
+            # ==========================================
+            # PREDIKSI MULTI-OUTPUT HYBRID MODEL
+            # ==========================================
+            # Model kita mengembalikan LIST berisi 2 array: [reg_output, clf_output]
             predictions = model.predict(input_data, verbose=0)
+            rul_pred_scaled = predictions[0]  # Array Regression
+            clf_pred_proba = predictions[1]   # Array Classification
             
-            # Inverse transform target (RUL)
-            rul_raw = float(np.ravel(predictions)[0])
-            rul_estimated_scaled = np.array([[rul_raw]])
-            rul_estimated_unscaled = scaler_y.inverse_transform(rul_estimated_scaled)
+            # Denormalisasi RUL
+            rul_estimated_unscaled = scaler_y.inverse_transform(rul_pred_scaled)
             rul_estimated = float(rul_estimated_unscaled[0][0])
             rul_estimated = max(0.0, rul_estimated)
             
-            # Karena model tidak mengeluarkan failure_prob, kita hitung otomatis (Logika Heuristik)
-            if rul_estimated <= 7.0:
-                failure_prob = 0.85
-            elif rul_estimated <= 21.0:
-                failure_prob = 0.40
-            else:
-                failure_prob = 0.05
-                
-            failure_prob = float(max(0.0, min(1.0, failure_prob)))
+            # Ekstrak Probabilitas Failure
+            failure_prob = float(clf_pred_proba[0][0])
+            
+            # Tentukan Status Dashboard (Fusion Logic)
             alert_level = determine_alert_level(failure_prob, rul_estimated)
             
             # Simpan hasil prediksi
@@ -137,7 +152,7 @@ def run_inference():
             cursor.execute(insert_query, (machine_id, rul_estimated, failure_prob, alert_level))
             
         conn.commit()
-        print("✅ Inference real-time sukses. Model (shape: 24x9) memprediksi data terbaru.")
+        print("✅ Inference real-time sukses. Status Healthy/Warning/Critical telah diupdate!")
         
     except Exception as e:
         conn.rollback()

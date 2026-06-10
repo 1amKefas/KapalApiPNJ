@@ -8,8 +8,8 @@
 // =============================================
 
 const THEMES = {
-  LIGHT: 'light',
-  DARK: 'dark'
+  LIGHT: 'Terang',
+  DARK: 'Gelap'
 };
 
 /**
@@ -33,7 +33,7 @@ function applyTheme(theme) {
   const root = document.documentElement;
   
   if (theme === THEMES.DARK) {
-    root.setAttribute('data-theme', 'dark');
+    root.setAttribute('data-theme', 'Gelap');
     root.style.colorScheme = 'dark';
   } else {
     root.removeAttribute('data-theme');
@@ -132,7 +132,7 @@ function renderNavbar(activePage) {
         <span class="navbar-title">PreVis</span>
       </div>
       <div class="navbar-right">
-        <a href="/notifications.html" class="notification-bell" id="notif-bell" title="Notifications">
+        <a href="/notifications.html" class="notification-bell" id="notif-bell" title="Notifikasi">
           <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
           <span class="notification-badge" id="notif-count">0</span>
         </a>
@@ -146,7 +146,7 @@ function renderNavbar(activePage) {
           </div>
         </div>
         <div class="logout-menu" id="logout-menu">
-          <button onclick="logout()" data-i18n="logout">Logout</button>
+          <button onclick="logout()" data-i18n="logout">Keluar</button>
         </div>
       </div>
     `;
@@ -156,10 +156,10 @@ function renderNavbar(activePage) {
   const subNav = document.getElementById('sub-nav');
   if (subNav) {
     const tabs = [
-      { id: 'dashboard', label: 'Dashboard', icon: 'assets/dahsboard_icon.png', href: '/dashboard.html' },
-      { id: 'analytics', label: 'Analytics', icon: 'assets/analytic_icon.png', href: '/analytics.html' },
-      { id: 'costBenefit', label: 'Cost Benefit Analysis', icon: 'assets/cost-benefit_icon.png', href: '/cost-benefit.html' },
-      { id: 'settings', label: 'Settings', icon: 'assets/settings_icon.png', href: '/settings.html' },
+      { id: 'dashboard', label: 'Dasbor', icon: 'assets/dahsboard_icon.png', href: '/dashboard.html' },
+      { id: 'analytics', label: 'Analitik', icon: 'assets/analytic_icon.png', href: '/analytics.html' },
+      { id: 'costBenefit', label: 'Analisis Biaya & Manfaat', icon: 'assets/cost-benefit_icon.png', href: '/cost-benefit.html' },
+      { id: 'settings', label: 'Pengaturan', icon: 'assets/settings_icon.png', href: '/settings.html' },
     ];
 
     subNav.innerHTML = `
@@ -173,7 +173,7 @@ function renderNavbar(activePage) {
       </div>
       <div class="system-status">
         <span class="status-dot"></span>
-        <span data-i18n="systemStatusOperational">System Status Operational</span>
+        <span data-i18n="systemStatusOperational">Status Sistem Operasional</span>
       </div>
     `;
   }
@@ -214,22 +214,22 @@ function formatNumber(num) {
 }
 
 function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString('en-GB', {
+  return new Date(dateStr).toLocaleDateString('id-ID', {
     year: 'numeric', month: 'short', day: 'numeric',
   });
 }
 
 function formatDateTime(dateStr) {
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-GB', {
+  return d.toLocaleDateString('id-ID', {
     year: 'numeric', month: 'short', day: 'numeric',
-  }) + ' ' + d.toLocaleTimeString('en-GB', {
+  }) + ' ' + d.toLocaleTimeString('id-ID', {
     hour: '2-digit', minute: '2-digit', second: '2-digit',
   });
 }
 
 function formatTime(dateStr) {
-  return new Date(dateStr).toLocaleTimeString('en-GB', {
+  return new Date(dateStr).toLocaleTimeString('id-ID', {
     hour: '2-digit', minute: '2-digit',
   });
 }
@@ -241,9 +241,9 @@ function getStatusClass(alertLevel) {
 }
 
 function getStatusLabel(alertLevel) {
-  if (alertLevel === 'Critical') return 'Critical';
-  if (alertLevel === 'Warning') return 'Warning';
-  return 'Healthy';
+  if (alertLevel === 'Critical') return 'Kritis';
+  if (alertLevel === 'Warning') return 'Peringatan';
+  return 'Sehat';
 }
 
 function getMachineImage(machineId) {

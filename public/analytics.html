@@ -34,15 +34,20 @@
       <div class="metric-card rul-card">
         <div class="metric-card-inner">
           <div class="rul-info">
-            <span class="metric-card-label">Remaining Useful Life</span>
+            <span class="metric-card-label">Sisa Umur Mesin</span>
             <div class="rul-value">
               <span class="rul-number" id="rul-days">—</span>
-              <span class="rul-unit">days</span>
+              <span class="rul-unit">hari</span>
             </div>
-            <span class="rul-sub">Estimated until failure</span>
-            <div class="rul-bar-container">
-              <div class="rul-bar" id="rul-bar"></div>
-              <span class="rul-bar-label" id="rul-bar-pct">—</span>
+            <span class="rul-sub">Estimasi hingga rusak</span>
+            <div class="rul-bar-wrapper" style="margin-top: 15px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+                <span style="font-size: 0.85rem; font-weight: 500; opacity: 0.8;">Kapasitas Sisa</span>
+                <span id="rul-bar-pct" style="font-size: 1.5rem; font-weight: 700; line-height: 1;">—</span>
+              </div>
+              <div class="rul-bar-container">
+                <div class="rul-bar" id="rul-bar"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -50,7 +55,7 @@
 
       <!-- Health Score (Donut) -->
       <div class="metric-card health-score-card">
-        <span class="metric-card-label center">Health Score</span>
+        <span class="metric-card-label center">Skor Kesehatan</span>
         <div class="health-gauge-wrapper">
           <canvas id="health-gauge" width="160" height="160"></canvas>
           <div class="health-score-text">
@@ -63,7 +68,7 @@
       <!-- Sensor Averages -->
       <div class="sensor-grid">
         <div class="sensor-card">
-          <span class="sensor-label">Avg. Vibration</span>
+          <span class="sensor-label">Rata-rata Getaran</span>
           <div class="sensor-value-row">
             <span class="sensor-value" id="avg-vibration">—</span>
             <small class="sensor-unit">mm/s</small>
@@ -71,7 +76,7 @@
           </div>
         </div>
         <div class="sensor-card">
-          <span class="sensor-label">Avg. Temperature</span>
+          <span class="sensor-label">Rata-rata Suhu</span>
           <div class="sensor-value-row">
             <span class="sensor-value" id="avg-temperature">—</span>
             <small class="sensor-unit">°C</small>
@@ -79,7 +84,7 @@
           </div>
         </div>
         <div class="sensor-card">
-          <span class="sensor-label">Avg. Pressure</span>
+          <span class="sensor-label">Rata-rata Tekanan</span>
           <div class="sensor-value-row">
             <span class="sensor-value" id="avg-pressure">—</span>
             <small class="sensor-unit">bar</small>
@@ -87,7 +92,7 @@
           </div>
         </div>
         <div class="sensor-card">
-          <span class="sensor-label">Max. RPM</span>
+          <span class="sensor-label">RPM Maks</span>
           <div class="sensor-value-row">
             <span class="sensor-value" id="max-rpm">—</span>
             <span class="sensor-change" id="chg-rpm"></span>
@@ -99,12 +104,12 @@
     <!-- Parameter Trend Chart -->
     <div class="chart-section card">
       <div class="chart-header">
-        <h2 class="section-title" style="margin-bottom:0">Parameter Trend</h2>
+        <h2 class="section-title" style="margin-bottom:0">Tren Parameter</h2>
         <div class="chart-controls">
           <select id="time-range" class="time-select">
-            <option value="7" selected>7D</option>
-            <option value="3">3D</option>
-            <option value="1">1D</option>
+            <option value="7" selected>7 Hari</option>
+            <option value="3">3 Hari</option>
+            <option value="1">1 Hari</option>
           </select>
         </div>
       </div>
@@ -128,7 +133,7 @@
       const params = new URLSearchParams(window.location.search);
       const machineId = params.get('machine') || 'M-03';
 
-      document.getElementById('page-title').textContent = `Analisis Detail  ${machineId}`;
+      document.getElementById('page-title').textContent = `Analisis Detail ${machineId}`;
 
       try {
         const [machine, telemetry] = await Promise.all([
@@ -155,7 +160,7 @@
     function renderMetrics(m) {
       // Last updated
       document.getElementById('updated-time').textContent =
-        `Last Updated: ${formatDateTime(m.prediction_time || new Date())}`;
+        `Terakhir Diperbarui: ${formatDateTime(m.prediction_time || new Date())}`;
 
       // RUL
       const rul = m.rul_estimated || 0;
@@ -168,7 +173,12 @@
       if (rulPct < 20) bar.classList.add('rul-critical');
       else if (rulPct < 40) bar.classList.add('rul-warning');
       else bar.classList.add('rul-healthy');
-      document.getElementById('rul-bar-pct').textContent = `${Math.round(rulPct)}%`;
+
+      const pctEl = document.getElementById('rul-bar-pct');
+      pctEl.textContent = `${Math.round(rulPct)}%`;
+      if (rulPct < 20) pctEl.style.color = '#EF4444'; // Merah (Kritis)
+      else if (rulPct < 40) pctEl.style.color = '#EAB308'; // Kuning (Peringatan)
+      else pctEl.style.color = '#22C55E'; // Hijau (Sehat)
 
       // Health score
       const score = getHealthScore(m.failure_prob);
@@ -259,9 +269,16 @@
       const step = Math.max(1, Math.floor(telemetry.length / 200));
       const sampled = telemetry.filter((_, i) => i % step === 0);
 
+      const timeRangeVal = parseFloat(document.getElementById('time-range').value);
+
       const labels = sampled.map(t => {
         const d = new Date(t.timestamp);
-        return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
+        if (timeRangeVal < 1) {
+          // Tampilkan waktu saja (misal: 14.30) jika rentang < 1 hari
+          return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        }
+        // Tampilkan tanggal & waktu (misal: 12 Okt 14.30) untuk rentang >= 1 hari
+        return d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       });
 
       const ctx = document.getElementById('trend-chart').getContext('2d');
@@ -269,7 +286,7 @@
       // Calculate predicted failure date from RUL
       const rul = machine.rul_estimated || 30;
       const failureDate = new Date(Date.now() + rul * 24 * 60 * 60 * 1000);
-      const failureDateStr = failureDate.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' });
+      const failureDateStr = failureDate.toLocaleDateString('id-ID', { month: 'short', day: 'numeric', year: 'numeric' });
 
       trendChart = new Chart(ctx, {
         type: 'line',
@@ -277,7 +294,7 @@
           labels,
           datasets: [
             {
-              label: 'Temperature (°C)',
+              label: 'Suhu (°C)',
               data: sampled.map(t => t.temperature),
               borderColor: '#EF4444',
               backgroundColor: 'rgba(239, 68, 68, 0.05)',
@@ -289,7 +306,7 @@
               yAxisID: 'y',
             },
             {
-              label: 'Pressure (bar)',
+              label: 'Tekanan (bar)',
               data: sampled.map(t => t.pressure),
               borderColor: '#22C55E',
               backgroundColor: 'rgba(34, 197, 94, 0.05)',
@@ -301,7 +318,7 @@
               yAxisID: 'y2',
             },
             {
-              label: 'Vibration (mm/s)',
+              label: 'Getaran (mm/s)',
               data: sampled.map(t => t.vibration),
               borderColor: '#3B82F6',
               backgroundColor: 'rgba(59, 130, 246, 0.05)',
@@ -348,7 +365,7 @@
                   borderDash: [6, 4],
                   label: {
                     display: true,
-                    content: `Predicted Failure on ${failureDateStr}`,
+                    content: `Prediksi Rusak pada ${failureDateStr}`,
                     position: 'start',
                     backgroundColor: 'rgba(239, 68, 68, 0.85)',
                     color: '#fff',
@@ -372,7 +389,7 @@
               position: 'left',
               title: {
                 display: true,
-                text: 'Vibration(mm/s) / Temperature(°C)',
+                text: 'Getaran(mm/s) / Suhu(°C)',
                 font: { family: 'Inter', size: 11 },
               },
               grid: { color: 'rgba(0,0,0,0.04)' },
@@ -382,7 +399,7 @@
               position: 'right',
               title: {
                 display: true,
-                text: 'Pressure (bar)',
+                text: 'Tekanan (bar)',
                 font: { family: 'Inter', size: 11 },
               },
               grid: { drawOnChartArea: false },

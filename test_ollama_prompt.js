@@ -1,4 +1,4 @@
-const OLLAMA_HOST = 'http://localhost:11434';
+const OLLAMA_HOST = 'http://127.0.0.1:11434';
 const OLLAMA_MODEL = 'qwen3.5:0.8b';
 const systemPrompt = `You are **PreVis AI Assistant**, an expert in predictive maintenance for industrial machinery. You are embedded in the PreVis Dashboard, a monitoring system for ship/industrial equipment at PNJ (Politeknik Negeri Jakarta).
 

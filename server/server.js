@@ -62,7 +62,7 @@ async function flushTelemetryBuffer() {
     `, params);
 
   } catch (err) {
-    console.error('❌ Telemetry flush error:', err.message);
+    console.error('❌ Kesalahan pembersihan telemetri:', err.message);
     // Put failed batch back
     telemetryBuffer.unshift(...batch);
   }
@@ -74,20 +74,20 @@ setInterval(flushTelemetryBuffer, FLUSH_INTERVAL_MS);
 let simulatorCount = 0;
 
 io.on('connection', (socket) => {
-  console.log(`🔌 Client connected: ${socket.id}`);
+  console.log(`🔌 Klien terhubung: ${socket.id}`);
 
   // Simulator identifies itself
   socket.on('register-simulator', () => {
     simulatorCount++;
     socket.join('simulators');
-    console.log(`🎛️  Simulator registered (${simulatorCount} active)`);
+    console.log(`🎛️  Simulator terdaftar (${simulatorCount} aktif)`);
     socket.emit('registered', { status: 'ok' });
   });
 
   // Dashboard identifies itself
   socket.on('register-dashboard', () => {
     socket.join('dashboards');
-    console.log(`📊 Dashboard registered`);
+    console.log(`📊 Dasbor terdaftar`);
   });
 
   // Receive sensor data from simulator
@@ -121,19 +121,19 @@ io.on('connection', (socket) => {
 
       // Notify dashboards
       io.to('dashboards').emit('prediction-update', data);
-      console.log(`🤖 Prediction updated: ${data.machine_id} → ${data.alert_level}`);
+      console.log(`🤖 Prediksi diperbarui: ${data.machine_id} → ${data.alert_level}`);
 
     } catch (err) {
-      console.error('❌ Prediction update error:', err.message);
+      console.error('❌ Kesalahan pembaruan prediksi:', err.message);
     }
   });
 
   socket.on('disconnect', () => {
     if (socket.rooms.has('simulators')) {
       simulatorCount = Math.max(0, simulatorCount - 1);
-      console.log(`🎛️  Simulator disconnected (${simulatorCount} active)`);
+      console.log(`🎛️  Simulator terputus (${simulatorCount} aktif)`);
     }
-    console.log(`🔌 Client disconnected: ${socket.id}`);
+    console.log(`🔌 Klien terputus: ${socket.id}`);
   });
 });
 
@@ -147,26 +147,28 @@ app.get('/api/simulator/status', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`\n🚀 PreVis server running at http://localhost:${PORT}`);
-  console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard.html`);
+  console.log(`\n🚀 Server PreVis berjalan di http://localhost:${PORT}`);
+  console.log(`📊 Dasbor: http://localhost:${PORT}/dashboard.html`);
   console.log(`🎛️  Simulator: http://localhost:${PORT}/simulator.html`);
-  console.log(`🔐 Login: http://localhost:${PORT}/login.html\n`);
+  console.log(`🔐 Masuk: http://localhost:${PORT}/login.html\n`);
 
   // Start the NLP service
   const nlpDir = path.join(__dirname, '..', 'nlp');
-  console.log(`🐍 Starting NLP service from ${nlpDir}...`);
+  console.log(`🐍 Memulai layanan NLP dari ${nlpDir}...`);
   
-  const nlpProcess = spawn('bash', ['-c', 'source venv/bin/activate && python nlp_service.py'], {
+  const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+  const nlpProcess = spawn(pythonCmd, ['nlp_service.py'], {
     cwd: nlpDir,
+    shell: true,
     stdio: 'inherit'
   });
 
   nlpProcess.on('error', (err) => {
-    console.error(`❌ Failed to start NLP service: ${err.message}`);
+    console.error(`❌ Gagal memulai layanan NLP: ${err.message}`);
   });
 
   nlpProcess.on('close', (code) => {
-    console.log(`🐍 NLP service exited with code ${code}`);
+    console.log(`🐍 Layanan NLP keluar dengan kode ${code}`);
   });
 
   // Ensure NLP service is killed when node process exits

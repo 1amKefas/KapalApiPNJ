@@ -3,9 +3,6 @@ server/pgdata/
 server/.env
 server/node_modules/
 *.log
-ml/.venv/
-ml/plots/
-ml/__pycache__/
-ml/steps/__pycache__/
-ml/venv/
+ml/models/
 ml/pipeline/
+ml/venv/

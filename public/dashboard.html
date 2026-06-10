@@ -24,9 +24,9 @@
           <img src="assets/total_machine_icon.png" alt="Total Machines">
         </div>
         <div class="summary-info">
-          <span class="summary-label">Total machine</span>
+          <span class="summary-label" data-i18n="totalMachine">Total Mesin</span>
           <span class="summary-value" id="total-count">—</span>
-          <span class="summary-sub">All systems</span>
+          <span class="summary-sub" data-i18n="allSystems">Semua sistem</span>
         </div>
       </div>
       <div class="summary-card card-critical" id="card-critical">
@@ -34,7 +34,7 @@
           <img src="assets/critical_icon.png" alt="Critical">
         </div>
         <div class="summary-info">
-          <span class="summary-label">Critical</span>
+          <span class="summary-label" data-i18n="critical">Kritis</span>
           <span class="summary-value" id="critical-count">—</span>
           <span class="summary-sub" id="critical-pct">—</span>
         </div>
@@ -44,7 +44,7 @@
           <img src="assets/warning_icon.png" alt="Warning">
         </div>
         <div class="summary-info">
-          <span class="summary-label">Warning</span>
+          <span class="summary-label" data-i18n="warning">Peringatan</span>
           <span class="summary-value" id="warning-count">—</span>
           <span class="summary-sub" id="warning-pct">—</span>
         </div>
@@ -54,7 +54,7 @@
           <img src="assets/healthy_icon.png" alt="Healthy">
         </div>
         <div class="summary-info">
-          <span class="summary-label">Healthy</span>
+          <span class="summary-label" data-i18n="healthy">Sehat</span>
           <span class="summary-value" id="healthy-count">—</span>
           <span class="summary-sub" id="healthy-pct">—</span>
         </div>
@@ -63,7 +63,7 @@
 
     <!-- Health Gauge Section -->
     <section class="health-section">
-      <h2 class="section-title">Health Gauge</h2>
+      <h2 class="section-title" data-i18n="healthGauge">Indikator Kesehatan</h2>
       <div class="machine-grid" id="machine-grid">
         <!-- Machine cards populated by JS -->
         <div class="loading-placeholder">
@@ -75,7 +75,7 @@
       </div>
 
       <div class="view-all-container">
-        <button class="view-all-btn" id="view-all-btn">View All Machines</button>
+        <button class="view-all-btn" id="view-all-btn" data-i18n="viewAllMachines">Lihat Semua Mesin</button>
       </div>
     </section>
   </main>
@@ -113,9 +113,9 @@
       animateCount('critical-count', s.critical);
       animateCount('warning-count', s.warning);
       animateCount('healthy-count', s.healthy);
-      document.getElementById('critical-pct').textContent = `${s.critical_pct}% of Total`;
-      document.getElementById('warning-pct').textContent = `${s.warning_pct}% of Total`;
-      document.getElementById('healthy-pct').textContent = `${s.healthy_pct}% of Total`;
+      document.getElementById('critical-pct').textContent = `${s.critical_pct}% dari Total`;
+      document.getElementById('warning-pct').textContent = `${s.warning_pct}% dari Total`;
+      document.getElementById('healthy-pct').textContent = `${s.healthy_pct}% dari Total`;
     }
 
     function animateCount(elementId, target) {
@@ -157,15 +157,15 @@
               </div>
               <div class="machine-metrics">
                 <div class="metric">
-                  <span class="metric-label">Vibration</span>
+                  <span class="metric-label" data-i18n="vibration" title="Nilai real-time saat ini">Getaran (Terkini)</span>
                   <span class="metric-value">${m.vibration ? m.vibration.toFixed(1) : '—'} <small>mm/s</small></span>
                 </div>
                 <div class="metric">
-                  <span class="metric-label">Temperature</span>
+                  <span class="metric-label" data-i18n="temperature" title="Nilai real-time saat ini">Suhu (Terkini)</span>
                   <span class="metric-value">${m.temperature ? m.temperature.toFixed(1) : '—'} <small>°C</small></span>
                 </div>
                 <div class="metric">
-                  <span class="metric-label">RPM</span>
+                  <span class="metric-label" title="Nilai real-time saat ini">RPM (Terkini)</span>
                   <span class="metric-value">${m.rpm ? formatNumber(m.rpm) : '—'}</span>
                 </div>
               </div>
@@ -183,9 +183,9 @@
       // View all button
       const viewBtn = document.getElementById('view-all-btn');
       if (showAll) {
-        viewBtn.textContent = 'Show Less';
+        viewBtn.textContent = 'Tampilkan Lebih Sedikit';
       } else {
-        viewBtn.textContent = `View All Machines (${machines.length})`;
+        viewBtn.textContent = `Lihat Semua Mesin (${machines.length})`;
       }
 
       viewBtn.onclick = () => {

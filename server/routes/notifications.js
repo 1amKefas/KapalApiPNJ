@@ -64,38 +64,38 @@ router.get('/', async (req, res) => {
 
     // Map to notification-style format
     const failureTypeMap = {
-      'Critical': ['Bearing Wear', 'Vibration Increase', 'Overheating'],
-      'Warning': ['High Temperature', 'Lubrication', 'Pressure Drop'],
-      'Normal': ['Normal Operation'],
+      'Critical': ['Keausan Bantalan', 'Peningkatan Getaran', 'Panas Berlebih'],
+      'Warning': ['Suhu Tinggi', 'Pelumasan', 'Penurunan Tekanan'],
+      'Normal': ['Operasi Normal'],
     };
 
     const descriptionMap = {
-      'Bearing Wear': 'Highly Vibration detected on drive-end bearing',
-      'Vibration Increase': 'Sudden vibration levels increase',
-      'Overheating': 'Core temperature exceeding safe threshold',
-      'High Temperature': 'Motor temperature exceeding normal range',
-      'Lubrication': 'Lubrication interval exceeded',
-      'Pressure Drop': 'Pressure below recommended level',
-      'Normal Operation': 'All parameters within normal range',
+      'Keausan Bantalan': 'Getaran tinggi terdeteksi pada bantalan penggerak',
+      'Peningkatan Getaran': 'Tingkat getaran meningkat secara tiba-tiba',
+      'Panas Berlebih': 'Suhu inti melebihi batas aman',
+      'Suhu Tinggi': 'Suhu motor melebihi batas normal',
+      'Pelumasan': 'Interval pelumasan terlampaui',
+      'Penurunan Tekanan': 'Tekanan di bawah tingkat yang direkomendasikan',
+      'Operasi Normal': 'Semua parameter dalam batas normal',
     };
 
     const actionMap = {
-      'Bearing Wear': 'Replace bearing and inspect shaft',
-      'Vibration Increase': 'Immediate inspection recommended',
-      'Overheating': 'Check cooling system and reduce load',
-      'High Temperature': 'Check cooling system and ventilation',
-      'Lubrication': 'Schedule lubrication maintenance',
-      'Pressure Drop': 'Inspect for leaks and refill if needed',
-      'Normal Operation': 'No action required',
+      'Keausan Bantalan': 'Ganti bantalan dan periksa poros',
+      'Peningkatan Getaran': 'Pemeriksaan segera direkomendasikan',
+      'Panas Berlebih': 'Periksa sistem pendingin dan kurangi beban',
+      'Suhu Tinggi': 'Periksa sistem pendingin dan ventilasi',
+      'Pelumasan': 'Jadwalkan perawatan pelumasan',
+      'Penurunan Tekanan': 'Periksa kebocoran dan isi ulang jika perlu',
+      'Operasi Normal': 'Tidak ada tindakan yang diperlukan',
     };
 
-    const actionStatusOptions = ['Open', 'In Progress', 'Closed'];
+    const actionStatusOptions = ['Terbuka', 'Sedang Diproses', 'Selesai'];
 
     const notifications = result.rows.map((row) => {
-      const types = failureTypeMap[row.alert_level] || ['Normal Operation'];
+      const types = failureTypeMap[row.alert_level] || ['Operasi Normal'];
       const failureType = types[Math.floor(Math.abs(row.pred_id) % types.length)];
       const actionStatus = row.alert_level === 'Normal'
-        ? 'Closed'
+        ? 'Selesai'
         : actionStatusOptions[Math.floor(Math.abs(row.pred_id) % 2)]; // Open or In Progress
 
       return {
@@ -103,9 +103,9 @@ router.get('/', async (req, res) => {
         machine_id: row.machine_id,
         timestamp: row.timestamp,
         failure_type: failureType,
-        status: row.alert_level === 'Normal' ? 'Healthy' : row.alert_level,
-        anomaly_description: descriptionMap[failureType] || 'Anomaly detected',
-        recommended_action: actionMap[failureType] || 'Inspect machine',
+        status: row.alert_level === 'Normal' ? 'Sehat' : (row.alert_level === 'Warning' ? 'Peringatan' : 'Kritis'),
+        anomaly_description: descriptionMap[failureType] || 'Anomali terdeteksi',
+        recommended_action: actionMap[failureType] || 'Periksa mesin',
         action_status: actionStatus,
       };
     });
