@@ -1,0 +1,19 @@
+# ── Node.js Server ────────────────────────────────────────────────
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY server/package*.json ./
+RUN npm ci --omit=dev
+
+# Copy server source
+COPY server/ ./
+
+# Copy public frontend (served as static files)
+COPY public/ ../public/
+
+EXPOSE 3000
+
+# Seed DB then start server
+CMD ["sh", "-c", "node seed.js && node server.js"]

@@ -1,0 +1,80 @@
+version: '3.9'
+
+services:
+  # ─────────────────────────────
+  # PostgreSQL Database
+  # ─────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: previs_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: previs_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - previs_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d previs_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─────────────────────────────
+  # Node.js Web Server + Seeder
+  # ─────────────────────────────
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    container_name: previs_server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: previs_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      PORT: 3000
+      OLLAMA_HOST: http://host.docker.internal:11434
+      OLLAMA_MODEL: qwen3.5:0.8b
+      ML_PYTHON: python3
+      ML_INFERENCE_INTERVAL_SECONDS: 10
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./public:/app/public:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ─────────────────────────────
+  # Python ML Inference Worker
+  # ─────────────────────────────
+  ml:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ml
+    container_name: previs_ml
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: previs_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      ML_INFERENCE_INTERVAL_SECONDS: 10
+      TF_CPP_MIN_LOG_LEVEL: 3
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./ml/models:/app/models:ro
+      - ./ml/pipeline:/app/pipeline:ro
+
+volumes:
+  previs_pgdata:

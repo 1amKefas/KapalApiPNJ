@@ -1,21 +1,20 @@
 /* =============================================
    PreVis IoT Simulator — Client Logic
-   Classic Audio Mixer Edition
    ============================================= */
 
 // ---- State ----
 const state = {
   selectedMachine: 'M-01',
-  isPlaying: false,
-  sendInterval: 1000,
   noiseLevel: 0.20,
-  sendTimer: null,
-  msgCount: 0,
-  rateTimer: null,
+  sampleCount: 0,
   machines: [],
   degradeTimer: null,
   degradeProgress: 0,
+  isRunningBatch: false,
+  virtualClocks: {},
 };
+
+const VIRTUAL_TIMESTEP_MS = 60 * 60 * 1000;
 
 // Sensor config
 const SENSORS = {
@@ -69,11 +68,20 @@ async function loadMachines() {
       alert_level: 'Normal',
     }));
   }
+
+  state.machines.forEach(machine => {
+    const latestTelemetryTime = new Date(machine.telemetry_time).getTime();
+    state.virtualClocks[machine.machine_id] = Number.isFinite(latestTelemetryTime)
+      ? latestTelemetryTime + VIRTUAL_TIMESTEP_MS
+      : Date.now();
+  });
+
   renderMachineList();
 }
 
 function renderMachineList() {
   const list = document.getElementById('machine-list');
+  document.getElementById('machine-count').textContent = state.machines.length;
   list.innerHTML = state.machines.map(m => {
     const statusClass = getStatusDotClass(m.alert_level);
     const active = m.machine_id === state.selectedMachine ? 'active' : '';
@@ -162,53 +170,72 @@ function addNoise(value, min, max) {
   return Math.max(min, Math.min(max, value + noise));
 }
 
-// ---- Send Data ----
-function sendSensorData() {
-  const raw = readFaderValues();
-  const data = { machine_id: state.selectedMachine };
+function nextTelemetryTimestamp(machineId) {
+  if (!state.virtualClocks[machineId]) {
+    state.virtualClocks[machineId] = Date.now();
+  }
+
+  const timestamp = new Date(state.virtualClocks[machineId]).toISOString();
+  state.virtualClocks[machineId] += VIRTUAL_TIMESTEP_MS;
+  return timestamp;
+}
+
+function setRunState(active, label = 'READY') {
+  state.isRunningBatch = active;
+  document.getElementById('btn-run-24h').disabled = active;
+  document.getElementById('btn-send-hour').disabled = active;
+  document.getElementById('btn-apply-all').disabled = active;
+  document.getElementById('live-indicator').classList.toggle('active', active);
+  document.querySelector('.live-text').textContent = label;
+}
+
+function buildSensorData(machineId, raw = readFaderValues()) {
+  const data = {
+    machine_id: machineId,
+    timestamp: nextTelemetryTimestamp(machineId),
+  };
 
   faderIds.forEach(param => {
     const config = SENSORS[param];
     data[param] = addNoise(raw[param], config.min, config.max);
   });
 
-  socket.emit('sensor-data', data);
-  state.msgCount++;
+  return data;
 }
 
-// ---- Transport Controls ----
-function startSending() {
-  if (state.isPlaying) return;
-  state.isPlaying = true;
-
-  document.getElementById('btn-play').classList.add('active');
-  document.getElementById('btn-pause').classList.remove('active');
-  document.getElementById('live-indicator').classList.add('active');
-  document.querySelector('.live-text').textContent = 'LIVE';
-
-  state.sendTimer = setInterval(sendSensorData, state.sendInterval);
-
-  state.rateTimer = setInterval(() => {
-    document.getElementById('stat-rate').textContent = state.msgCount;
-    state.msgCount = 0;
-  }, 1000);
+function sendSensorData(machineId = state.selectedMachine, raw = readFaderValues()) {
+  socket.emit('sensor-data', buildSensorData(machineId, raw));
+  state.sampleCount++;
+  document.getElementById('stat-samples').textContent = state.sampleCount;
 }
 
-function stopSending() {
-  state.isPlaying = false;
-
-  document.getElementById('btn-play').classList.remove('active');
-  document.getElementById('btn-pause').classList.add('active');
-  document.getElementById('live-indicator').classList.remove('active');
-  document.querySelector('.live-text').textContent = 'PAUSED';
-
-  clearInterval(state.sendTimer);
-  clearInterval(state.rateTimer);
-  document.getElementById('stat-rate').textContent = '0';
+// ---- Send Controls ----
+function sendOneHour() {
+  sendSensorData();
+  setRunState(false, 'SENT 1H');
 }
 
-document.getElementById('btn-play').addEventListener('click', startSending);
-document.getElementById('btn-pause').addEventListener('click', stopSending);
+async function runTwentyFourHours() {
+  if (state.isRunningBatch) return;
+  setRunState(true, 'RUNNING 24H');
+
+  const raw = readFaderValues();
+  for (let i = 0; i < 24; i++) {
+    sendSensorData(state.selectedMachine, raw);
+    await new Promise(resolve => setTimeout(resolve, 80));
+  }
+
+  setRunState(false, 'SENT 24H');
+}
+
+document.getElementById('btn-send-hour').addEventListener('click', sendOneHour);
+document.getElementById('btn-run-24h').addEventListener('click', runTwentyFourHours);
+
+document.getElementById('noise-level').addEventListener('input', event => {
+  const value = parseInt(event.target.value, 10);
+  state.noiseLevel = value / 100;
+  document.getElementById('noise-value').textContent = `${value}%`;
+});
 
 // ---- Scenario Presets ----
 function applyScenario(name) {
@@ -231,19 +258,6 @@ function applyScenario(name) {
     document.getElementById(`val-${param}`).textContent = val.toFixed(config.decimals);
     updateLED(param, val);
   });
-
-  const predMap = {
-    healthy:  { alert_level: 'Normal',   rul_estimated: 90 + Math.random() * 60, failure_prob: 0.02 + Math.random() * 0.08 },
-    warning:  { alert_level: 'Warning',  rul_estimated: 20 + Math.random() * 30, failure_prob: 0.35 + Math.random() * 0.25 },
-    critical: { alert_level: 'Critical', rul_estimated: 2 + Math.random() * 10,  failure_prob: 0.75 + Math.random() * 0.20 },
-  };
-
-  if (predMap[name]) {
-    socket.emit('scenario-change', {
-      machine_id: state.selectedMachine,
-      ...predMap[name],
-    });
-  }
 }
 
 // Degrading scenario: smooth transition from healthy → critical over 60s
@@ -276,18 +290,6 @@ function startDegrading() {
       updateLED(param, val);
     });
 
-    if (t > 0.3 && t < 0.32) {
-      socket.emit('scenario-change', {
-        machine_id: state.selectedMachine,
-        alert_level: 'Warning', rul_estimated: 25, failure_prob: 0.45,
-      });
-    }
-    if (t > 0.7 && t < 0.72) {
-      socket.emit('scenario-change', {
-        machine_id: state.selectedMachine,
-        alert_level: 'Critical', rul_estimated: 5, failure_prob: 0.88,
-      });
-    }
   }, stepMs);
 }
 
@@ -309,18 +311,13 @@ document.querySelectorAll('.scenario-btn').forEach(btn => {
 document.getElementById('btn-apply-all').addEventListener('click', () => {
   const raw = readFaderValues();
   state.machines.forEach(m => {
-    const data = { machine_id: m.machine_id };
-    faderIds.forEach(param => {
-      const config = SENSORS[param];
-      data[param] = addNoise(raw[param], config.min, config.max);
-    });
-    socket.emit('sensor-data', data);
+    sendSensorData(m.machine_id, raw);
   });
 
   const btn = document.getElementById('btn-apply-all');
   btn.textContent = `✓ Sent to ${state.machines.length}`;
   setTimeout(() => {
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg> Apply All';
+    btn.textContent = 'Send 1 Hour to All';
   }, 2000);
 });
 
@@ -330,8 +327,24 @@ setInterval(async () => {
     const res = await fetch('/api/simulator/status');
     const data = await res.json();
     document.getElementById('stat-buffer').textContent = data.buffer_size;
+    updateModelWarning(data.ml_inference);
   } catch (e) { /* ignore */ }
 }, 2000);
+
+function updateModelWarning(status) {
+  const warning = document.getElementById('model-warning');
+  if (!warning) return;
+
+  if (!status || status.running) {
+    warning.hidden = true;
+    return;
+  }
+
+  warning.hidden = false;
+  warning.textContent = status.message
+    ? `Model inference tidak berjalan: ${status.message}. Telemetry tetap tersimpan, tetapi prediksi dashboard tidak akan berubah.`
+    : 'Model inference tidak berjalan. Telemetry tetap tersimpan, tetapi prediksi dashboard tidak akan berubah.';
+}
 
 // ---- Init ----
 loadMachines();

@@ -11,6 +11,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 const PORT = process.env.PORT || 3000;
+const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+const mlPythonCmd = process.env.ML_PYTHON || pythonCmd;
 
 // Middleware
 app.use(cors());
@@ -37,6 +39,11 @@ app.get('/', (req, res) => {
 
 // Buffer for batch inserts (flush every 5 seconds)
 let telemetryBuffer = [];
+let mlInferenceStatus = {
+  running: false,
+  message: 'ML inference has not started',
+  updated_at: null,
+};
 const FLUSH_INTERVAL_MS = 5000;
 
 // Flush buffer to PostgreSQL
@@ -72,6 +79,8 @@ setInterval(flushTelemetryBuffer, FLUSH_INTERVAL_MS);
 
 // Track connected simulators
 let simulatorCount = 0;
+let lastNotifiedPredictionId = 0;
+let predictionNotificationTimer = null;
 
 io.on('connection', (socket) => {
   console.log(`🔌 Klien terhubung: ${socket.id}`);
@@ -92,10 +101,15 @@ io.on('connection', (socket) => {
 
   // Receive sensor data from simulator
   socket.on('sensor-data', (data) => {
-    // data = { machine_id, temperature, vibration, pressure, rpm, power }
+    // data = { machine_id, timestamp, temperature, vibration, pressure, rpm, power }
+    const incomingTimestamp = data.timestamp ? new Date(data.timestamp) : new Date();
+    const timestamp = Number.isNaN(incomingTimestamp.getTime())
+      ? new Date().toISOString()
+      : incomingTimestamp.toISOString();
+
     const reading = {
       machine_id: data.machine_id,
-      timestamp: new Date().toISOString(),
+      timestamp,
       temperature: parseFloat(data.temperature) || 0,
       vibration: parseFloat(data.vibration) || 0,
       pressure: parseFloat(data.pressure) || 0,
@@ -112,20 +126,7 @@ io.on('connection', (socket) => {
 
   // Receive batch scenario changes
   socket.on('scenario-change', async (data) => {
-    // data = { machine_id, alert_level, rul_estimated, failure_prob }
-    try {
-      await pool.query(`
-        INSERT INTO predictions (machine_id, timestamp, rul_estimated, failure_prob, alert_level)
-        VALUES ($1, NOW(), $2, $3, $4)
-      `, [data.machine_id, data.rul_estimated, data.failure_prob, data.alert_level]);
-
-      // Notify dashboards
-      io.to('dashboards').emit('prediction-update', data);
-      console.log(`🤖 Prediksi diperbarui: ${data.machine_id} → ${data.alert_level}`);
-
-    } catch (err) {
-      console.error('❌ Kesalahan pembaruan prediksi:', err.message);
-    }
+    console.log(`Scenario changed for ${data.machine_id}; waiting for ML inference output.`);
   });
 
   socket.on('disconnect', () => {
@@ -143,6 +144,7 @@ app.get('/api/simulator/status', (req, res) => {
     simulators: simulatorCount,
     buffer_size: telemetryBuffer.length,
     dashboards: io.sockets.adapter.rooms.get('dashboards')?.size || 0,
+    ml_inference: mlInferenceStatus,
   });
 });
 
@@ -152,33 +154,148 @@ server.listen(PORT, () => {
   console.log(`🎛️  Simulator: http://localhost:${PORT}/simulator.html`);
   console.log(`🔐 Masuk: http://localhost:${PORT}/login.html\n`);
 
-  // Start the NLP service
-  const nlpDir = path.join(__dirname, '..', 'nlp');
-  console.log(`🐍 Memulai layanan NLP dari ${nlpDir}...`);
-  
-  const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-  const nlpProcess = spawn(pythonCmd, ['nlp_service.py'], {
-    cwd: nlpDir,
+  const childProcesses = [
+    startPythonService('NLP', path.join(__dirname, '..', 'nlp'), 'nlp_service.py'),
+    startPythonService('ML inference', path.join(__dirname, '..', 'ml'), 'inference_worker.py', mlPythonCmd),
+  ].filter(Boolean);
+
+  initializePredictionNotificationCursor().then(() => {
+    predictionNotificationTimer = setInterval(pollPredictionNotifications, 5000);
+  });
+
+  const shutdown = (signal) => {
+    if (predictionNotificationTimer) clearInterval(predictionNotificationTimer);
+    childProcesses.forEach(child => child.kill(signal));
+    process.exit();
+  };
+
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+});
+
+function startPythonService(name, cwd, script, command = pythonCmd) {
+  console.log(`Starting ${name} service from ${cwd} using ${command}...`);
+
+  const child = spawn(command, [script], {
+    cwd,
     shell: true,
     stdio: 'inherit'
   });
 
-  nlpProcess.on('error', (err) => {
-    console.error(`❌ Gagal memulai layanan NLP: ${err.message}`);
+  if (name === 'ML inference') {
+    mlInferenceStatus = {
+      running: true,
+      message: 'ML inference is starting',
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  child.on('error', (err) => {
+    console.error(`Failed to start ${name} service: ${err.message}`);
+    if (name === 'ML inference') {
+      mlInferenceStatus = {
+        running: false,
+        message: `ML inference failed to start: ${err.message}`,
+        updated_at: new Date().toISOString(),
+      };
+    }
   });
 
-  nlpProcess.on('close', (code) => {
-    console.log(`🐍 Layanan NLP keluar dengan kode ${code}`);
+  child.on('close', (code) => {
+    console.log(`${name} service exited with code ${code}`);
+    if (name === 'ML inference') {
+      mlInferenceStatus = {
+        running: false,
+        message: `ML inference stopped with code ${code}`,
+        updated_at: new Date().toISOString(),
+      };
+      console.warn(mlInferenceStatus.message);
+    }
   });
 
-  // Ensure NLP service is killed when node process exits
-  process.on('SIGINT', () => {
-    nlpProcess.kill('SIGINT');
-    process.exit();
-  });
-  
-  process.on('SIGTERM', () => {
-    nlpProcess.kill('SIGTERM');
-    process.exit();
-  });
-});
+  return child;
+}
+
+async function initializePredictionNotificationCursor() {
+  try {
+    const result = await pool.query('SELECT COALESCE(MAX(pred_id), 0) AS max_id FROM predictions');
+    lastNotifiedPredictionId = Number(result.rows[0]?.max_id || 0);
+    console.log(`🔔 Notification watcher ready from prediction ID ${lastNotifiedPredictionId}`);
+  } catch (err) {
+    console.error('❌ Failed to initialize notification watcher:', err.message);
+  }
+}
+
+async function pollPredictionNotifications() {
+  try {
+    const result = await pool.query(`
+      SELECT
+        p.pred_id,
+        p.machine_id,
+        p.timestamp,
+        p.rul_estimated,
+        p.failure_prob,
+        p.alert_level,
+        m.model_type,
+        m.location
+      FROM predictions p
+      LEFT JOIN machines m ON m.machine_id = p.machine_id
+      WHERE p.pred_id > $1
+      ORDER BY p.pred_id ASC
+      LIMIT 50
+    `, [lastNotifiedPredictionId]);
+
+    for (const row of result.rows) {
+      lastNotifiedPredictionId = Math.max(lastNotifiedPredictionId, Number(row.pred_id));
+      if (['Warning', 'Critical'].includes(row.alert_level)) {
+        io.emit('prediction-notification', mapPredictionNotification(row));
+        console.log(`🔔 ML notification emitted: ${row.machine_id} → ${row.alert_level}`);
+      }
+    }
+  } catch (err) {
+    console.error('❌ Failed to poll prediction notifications:', err.message);
+  }
+}
+
+function mapPredictionNotification(row) {
+  const failureTypeMap = {
+    Critical: ['Keausan Bantalan', 'Peningkatan Getaran', 'Panas Berlebih'],
+    Warning: ['Suhu Tinggi', 'Pelumasan', 'Penurunan Tekanan'],
+  };
+
+  const descriptionMap = {
+    'Keausan Bantalan': 'Getaran tinggi terdeteksi pada bantalan penggerak',
+    'Peningkatan Getaran': 'Tingkat getaran meningkat secara tiba-tiba',
+    'Panas Berlebih': 'Suhu inti melebihi batas aman',
+    'Suhu Tinggi': 'Suhu motor melebihi batas normal',
+    'Pelumasan': 'Interval pelumasan terlampaui',
+    'Penurunan Tekanan': 'Tekanan di bawah tingkat yang direkomendasikan',
+  };
+
+  const actionMap = {
+    'Keausan Bantalan': 'Ganti bantalan dan periksa poros',
+    'Peningkatan Getaran': 'Pemeriksaan segera direkomendasikan',
+    'Panas Berlebih': 'Periksa sistem pendingin dan kurangi beban',
+    'Suhu Tinggi': 'Periksa sistem pendingin dan ventilasi',
+    'Pelumasan': 'Jadwalkan perawatan pelumasan',
+    'Penurunan Tekanan': 'Periksa kebocoran dan isi ulang jika perlu',
+  };
+
+  const types = failureTypeMap[row.alert_level] || ['Anomali Mesin'];
+  const failureType = types[Math.floor(Math.abs(Number(row.pred_id)) % types.length)];
+
+  return {
+    id: row.pred_id,
+    machine_id: row.machine_id,
+    timestamp: row.timestamp,
+    failure_type: failureType,
+    status: row.alert_level === 'Critical' ? 'Kritis' : 'Peringatan',
+    anomaly_description: descriptionMap[failureType] || 'Model machine learning mendeteksi kondisi mesin tidak normal',
+    recommended_action: actionMap[failureType] || 'Periksa mesin',
+    action_status: 'Terbuka',
+    model_type: row.model_type,
+    location: row.location,
+    rul_estimated: row.rul_estimated,
+    failure_prob: row.failure_prob,
+  };
+}

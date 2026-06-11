@@ -21,10 +21,21 @@
   <main class="main-content">
     <!-- Page Header -->
     <div class="page-header">
-      <h1 class="page-title" id="page-title">Analisis Detail</h1>
-      <div class="last-updated" id="last-updated">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-        <span id="updated-time">Loading...</span>
+      <div>
+        <h1 class="page-title" id="page-title">Analisis Detail</h1>
+        <div class="last-updated" id="last-updated">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          <span id="updated-time">Loading...</span>
+        </div>
+      </div>
+      <div class="page-actions">
+        <button class="back-btn" type="button" onclick="location.href='/dashboard.html'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/></svg>
+          Kembali ke Dasbor
+        </button>
+        <select id="machine-select" class="machine-select" aria-label="Pilih mesin">
+          <option>Memuat mesin...</option>
+        </select>
       </div>
     </div>
 
@@ -122,35 +133,79 @@
   <script src="shared.js"></script>
   <script>
     const user = requireAuth();
+    let selectedMachineId = new URLSearchParams(window.location.search).get('machine') || 'M-03';
+    let timeRangeBound = false;
+    let machineSelectBound = false;
+
     if (user) {
       renderNavbar('analytics');
-      loadAnalytics();
+      initializeAnalyticsPage();
     }
 
     let trendChart = null;
 
-    async function loadAnalytics() {
-      const params = new URLSearchParams(window.location.search);
-      const machineId = params.get('machine') || 'M-03';
+    async function initializeAnalyticsPage() {
+      await loadMachineOptions();
+      bindAnalyticsControls();
+      await loadAnalytics(selectedMachineId);
+    }
 
+    async function loadMachineOptions() {
+      try {
+        const machines = await api.get('/machines');
+        if (!machines.some(m => m.machine_id === selectedMachineId) && machines.length > 0) {
+          selectedMachineId = machines[0].machine_id;
+        }
+
+        const select = document.getElementById('machine-select');
+        select.innerHTML = machines.map(machine => `
+          <option value="${machine.machine_id}" ${machine.machine_id === selectedMachineId ? 'selected' : ''}>
+            ${machine.machine_id} — ${machine.model_type || machine.machine_id}
+          </option>
+        `).join('');
+      } catch (err) {
+        console.error('Machine options load error:', err);
+      }
+    }
+
+    function bindAnalyticsControls() {
+      const machineSelect = document.getElementById('machine-select');
+      if (machineSelect && !machineSelectBound) {
+        machineSelect.addEventListener('change', async (event) => {
+          selectedMachineId = event.target.value;
+          const url = new URL(window.location.href);
+          url.searchParams.set('machine', selectedMachineId);
+          window.history.replaceState({}, '', url);
+          await loadAnalytics(selectedMachineId);
+        });
+        machineSelectBound = true;
+      }
+
+      const timeRange = document.getElementById('time-range');
+      if (timeRange && !timeRangeBound) {
+        timeRange.addEventListener('change', async () => {
+          await loadAnalytics(selectedMachineId);
+        });
+        timeRangeBound = true;
+      }
+    }
+
+    async function loadAnalytics(machineId = selectedMachineId) {
+      selectedMachineId = machineId;
       document.getElementById('page-title').textContent = `Analisis Detail ${machineId}`;
+      const machineSelect = document.getElementById('machine-select');
+      if (machineSelect) machineSelect.value = machineId;
 
       try {
+        const days = document.getElementById('time-range').value;
         const [machine, telemetry] = await Promise.all([
           api.get(`/machines/${machineId}`),
-          api.get(`/machines/${machineId}/telemetry?days=7`),
+          api.get(`/machines/${machineId}/telemetry?days=${days}`),
         ]);
 
         renderMetrics(machine);
         renderHealthGauge(machine.failure_prob);
         renderTrendChart(telemetry, machine);
-
-        // Time range selector
-        document.getElementById('time-range').addEventListener('change', async (e) => {
-          const days = e.target.value;
-          const newTelemetry = await api.get(`/machines/${machineId}/telemetry?days=${days}`);
-          renderTrendChart(newTelemetry, machine);
-        });
 
       } catch (err) {
         console.error('Analytics load error:', err);

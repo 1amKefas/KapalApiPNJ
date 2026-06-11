@@ -17,6 +17,7 @@ const adminPool = new Pool({
 });
 
 const dbName = process.env.DB_NAME || 'previs_db';
+const MACHINE_COUNT = 100;
 
 async function createDatabase() {
   const client = await adminPool.connect();
@@ -138,10 +139,8 @@ async function seed() {
       'CNC Turner TSL-400', 'Drilling Machine DM-200', 'Surface Grinder SG-150'
     ];
     const locations = ['Workshop A', 'Workshop B', 'Workshop C', 'Assembly Line 1', 'Assembly Line 2', 'Bay 3'];
-    const machineImages = ['machine-1.png', 'machine-2.png', 'machine-3.png', 'machine-4.png'];
-
     const machines = [];
-    for (let i = 1; i <= 20; i++) {
+    for (let i = 1; i <= MACHINE_COUNT; i++) {
       const id = `M-${String(i).padStart(2, '0')}`;
       const model = modelTypes[i % modelTypes.length];
       const loc = locations[i % locations.length];
@@ -155,7 +154,7 @@ async function seed() {
         [m.id, m.model, m.installDate, m.location]
       );
     }
-    console.log('✅ 20 machines seeded');
+    console.log(`✅ ${MACHINE_COUNT} machines seeded`);
 
     // =========================================
     // SEED SENSOR TELEMETRY (7 days, every 30 min)
@@ -164,35 +163,22 @@ async function seed() {
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    // Define machine health profiles
-    // 15 healthy, 6 warning, 3 critical (matching wireframe counts)
-    const criticalMachines = ['M-03', 'M-06', 'M-19'];
-    const warningMachines = ['M-02', 'M-05', 'M-08', 'M-11', 'M-14', 'M-17'];
-
     let telemetryValues = [];
     let telemetryCount = 0;
 
     for (const m of machines) {
-      let baseTemp, baseVib, basePressure, baseRpm, basePower;
-      let tempDrift = 0, vibDrift = 0;
-
-      if (criticalMachines.includes(m.id)) {
-        baseTemp = 70; baseVib = 6.5; basePressure = 8; baseRpm = 1450; basePower = 15;
-        tempDrift = 0.08; vibDrift = 0.05;
-      } else if (warningMachines.includes(m.id)) {
-        baseTemp = 55; baseVib = 4.0; basePressure = 9.5; baseRpm = 1480; basePower = 12;
-        tempDrift = 0.03; vibDrift = 0.02;
-      } else {
-        baseTemp = 42; baseVib = 2.0; basePressure = 10.5; baseRpm = 1500; basePower = 10;
-        tempDrift = 0; vibDrift = 0;
-      }
+      const baseTemp = 42;
+      const baseVib = 2.0;
+      const basePressure = 10.5;
+      const baseRpm = 1500;
+      const basePower = 10;
 
       let step = 0;
       for (let t = sevenDaysAgo.getTime(); t <= now.getTime(); t += 30 * 60 * 1000) {
         const ts = new Date(t);
         const noise = () => (Math.random() - 0.5) * 2;
-        const temp = +(baseTemp + tempDrift * step + noise() * 3).toFixed(1);
-        const vib = +(baseVib + vibDrift * step * 0.1 + noise() * 0.5).toFixed(2);
+        const temp = +(baseTemp + noise() * 3).toFixed(1);
+        const vib = +(baseVib + noise() * 0.5).toFixed(2);
         const pressure = +(basePressure + noise() * 0.8).toFixed(1);
         const rpm = Math.round(baseRpm + noise() * 30);
         const power = +(basePower + noise() * 1.5).toFixed(1);
@@ -264,20 +250,9 @@ async function seed() {
 
     let predValues = [];
     for (const m of machines) {
-      let alertLevel, rul, failProb;
-      if (criticalMachines.includes(m.id)) {
-        alertLevel = 'Critical';
-        rul = +(2 + Math.random() * 15).toFixed(1);
-        failProb = +(0.7 + Math.random() * 0.25).toFixed(2);
-      } else if (warningMachines.includes(m.id)) {
-        alertLevel = 'Warning';
-        rul = +(20 + Math.random() * 30).toFixed(1);
-        failProb = +(0.3 + Math.random() * 0.35).toFixed(2);
-      } else {
-        alertLevel = 'Normal';
-        rul = +(50 + Math.random() * 100).toFixed(1);
-        failProb = +(0.01 + Math.random() * 0.15).toFixed(2);
-      }
+      const alertLevel = 'Normal';
+      const rul = +(80 + Math.random() * 70).toFixed(1);
+      const failProb = +(0.01 + Math.random() * 0.09).toFixed(2);
 
       // Latest prediction
       predValues.push(`('${m.id}', '${now.toISOString()}', ${rul}, ${failProb}, '${alertLevel}')`);

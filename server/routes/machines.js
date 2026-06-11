@@ -19,7 +19,8 @@ router.get('/', async (req, res) => {
         latest_sensor.vibration,
         latest_sensor.pressure,
         latest_sensor.rpm,
-        latest_sensor.power
+        latest_sensor.power,
+        latest_sensor.timestamp AS telemetry_time
       FROM machines m
       LEFT JOIN LATERAL (
         SELECT * FROM predictions

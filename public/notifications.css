@@ -248,6 +248,56 @@
 }
 
 @media (max-width: 768px) {
-  .filter-bar { flex-direction: column; align-items: flex-start; }
-  .pagination-bar { flex-direction: column; gap: 1rem; }
+  .filter-bar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .filter-left { flex-wrap: wrap; }
+  .pagination-bar { flex-direction: column; gap: 1rem; align-items: stretch; }
+  .pagination-controls { flex-wrap: wrap; justify-content: center; }
+  .pagination-info { text-align: center; }
+  .filter-right { display: none; }
+}
+
+/* Card-stacked rows on small phones */
+@media (max-width: 600px) {
+  .data-table thead { display: none; }
+
+  .data-table,
+  .data-table tbody,
+  .data-table tr,
+  .data-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .data-table tbody tr {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .data-table tbody tr:last-child { border-bottom: none; }
+
+  .data-table td {
+    border: none;
+    padding: 3px 0;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    min-width: 100px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    padding-top: 2px;
+  }
+
+  .desc-cell { max-width: 100%; }
+
+  .filter-buttons { flex-wrap: wrap; gap: 6px; }
+  .filter-btn { padding: 5px 12px; font-size: 0.74rem; }
 }

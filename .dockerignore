@@ -1,0 +1,12 @@
+**/.git
+**/.venv
+**/env
+**/node_modules
+**/__pycache__
+**/*.pyc
+ml/Data_KapalApi_*.npz
+ml/ml-runtime
+**/.agents
+**/.codex
+IMI LoFi
+*.pdf

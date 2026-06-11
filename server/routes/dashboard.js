@@ -10,7 +10,7 @@ router.get('/summary', async (req, res) => {
         COUNT(*) AS total,
         COUNT(*) FILTER (WHERE p.alert_level = 'Critical') AS critical,
         COUNT(*) FILTER (WHERE p.alert_level = 'Warning') AS warning,
-        COUNT(*) FILTER (WHERE p.alert_level = 'Normal') AS healthy
+        COUNT(*) FILTER (WHERE p.alert_level IN ('Normal', 'Healthy')) AS healthy
       FROM machines m
       LEFT JOIN LATERAL (
         SELECT alert_level FROM predictions

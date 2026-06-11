@@ -6,23 +6,33 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const status = req.query.status || 'all';
+    const readStatus = req.query.read_status || 'all';
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 8;
     const offset = (page - 1) * limit;
 
     // Build WHERE clause
-    let whereClause = '';
+    const conditions = [];
     const params = [];
+    
     if (status !== 'all') {
       let alertLevel;
       if (status === 'healthy') alertLevel = 'Normal';
       else if (status === 'warning') alertLevel = 'Warning';
       else if (status === 'critical') alertLevel = 'Critical';
       if (alertLevel) {
-        whereClause = 'WHERE p.alert_level = $1';
         params.push(alertLevel);
+        conditions.push(`p.alert_level = $${params.length}`);
       }
     }
+    
+    if (readStatus !== 'all') {
+      const isReadVal = readStatus === 'read';
+      params.push(isReadVal);
+      conditions.push(`p.is_read = $${params.length}`);
+    }
+
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
     // Count total
     const countResult = await pool.query(`
@@ -48,11 +58,12 @@ router.get('/', async (req, res) => {
         p.rul_estimated,
         p.failure_prob,
         p.alert_level,
+        p.is_read,
         m.model_type,
         m.location
       FROM machines m
       INNER JOIN LATERAL (
-        SELECT pred_id, timestamp, rul_estimated, failure_prob, alert_level
+        SELECT pred_id, timestamp, rul_estimated, failure_prob, alert_level, is_read
         FROM predictions
         WHERE machine_id = m.machine_id
         ORDER BY timestamp DESC LIMIT 1
@@ -107,6 +118,7 @@ router.get('/', async (req, res) => {
         anomaly_description: descriptionMap[failureType] || 'Anomali terdeteksi',
         recommended_action: actionMap[failureType] || 'Periksa mesin',
         action_status: actionStatus,
+        is_read: row.is_read,
       };
     });
 
@@ -121,6 +133,18 @@ router.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error('Notifications error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/notifications/:id/read
+router.post('/:id/read', async (req, res) => {
+  try {
+    const predId = req.params.id;
+    await pool.query('UPDATE predictions SET is_read = true WHERE pred_id = $1', [predId]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Mark read error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

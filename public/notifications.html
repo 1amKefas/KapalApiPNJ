@@ -25,12 +25,20 @@
     <!-- Filter Bar -->
     <div class="filter-bar card">
       <div class="filter-left">
-        <span class="filter-label">Filter</span>
+        <span class="filter-label">Filter Status</span>
         <div class="filter-buttons" id="filter-buttons">
           <button class="filter-btn active" data-status="all">Semua</button>
           <button class="filter-btn btn-healthy" data-status="healthy">Sehat</button>
           <button class="filter-btn btn-warning" data-status="warning">Peringatan</button>
           <button class="filter-btn btn-critical" data-status="critical">Kritis</button>
+        </div>
+      </div>
+      <div class="filter-left" style="margin-left: 20px;">
+        <span class="filter-label">Baca</span>
+        <div class="filter-buttons" id="read-filter-buttons">
+          <button class="filter-btn active" data-read="all">Semua</button>
+          <button class="filter-btn" data-read="unread">Belum Dibaca</button>
+          <button class="filter-btn" data-read="read">Sudah Dibaca</button>
         </div>
       </div>
       <div class="filter-right">
@@ -78,6 +86,7 @@
     }
 
     let currentStatus = 'all';
+    let currentReadStatus = 'all';
     let currentPage = 1;
     const limit = 8;
 
@@ -91,9 +100,20 @@
       // Filter buttons
       document.getElementById('filter-buttons').addEventListener('click', (e) => {
         if (e.target.classList.contains('filter-btn')) {
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          document.getElementById('filter-buttons').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
           e.target.classList.add('active');
           currentStatus = e.target.dataset.status;
+          currentPage = 1;
+          loadNotifications();
+        }
+      });
+
+      // Read filter buttons
+      document.getElementById('read-filter-buttons').addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-btn')) {
+          document.getElementById('read-filter-buttons').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          currentReadStatus = e.target.dataset.read;
           currentPage = 1;
           loadNotifications();
         }
@@ -104,7 +124,7 @@
 
     async function loadNotifications() {
       try {
-        const data = await api.get(`/notifications?status=${currentStatus}&page=${currentPage}&limit=${limit}`);
+        const data = await api.get(`/notifications?status=${currentStatus}&read_status=${currentReadStatus}&page=${currentPage}&limit=${limit}`);
         renderTable(data.notifications);
         renderPagination(data.pagination);
       } catch (err) {
@@ -129,21 +149,42 @@
         const actionClass = n.action_status === 'Selesai' ? 'action-closed'
           : n.action_status === 'Sedang Diproses' ? 'action-in-progress' : 'action-open';
 
+        const rowClass = n.is_read ? 'table-row read-row' : 'table-row unread-row';
+        const fontWeight = n.is_read ? 'normal' : 'bold';
+        
+        const readAction = n.is_read 
+          ? `<span style="color:var(--text-muted); font-size:0.8rem; display:block; margin-top:4px;">✔ Sudah Dibaca</span>`
+          : `<button onclick="markAsRead(${n.id}, event)" class="detail-btn" style="margin-top: 6px; padding: 4px 8px; font-size: 0.75rem;">Tandai Dibaca</button>`;
+
         return `
-          <tr class="table-row" onclick="location.href='/analytics.html?machine=${n.machine_id}'">
-            <td>
+          <tr class="${rowClass}" onclick="location.href='/analytics.html?machine=${n.machine_id}'" style="font-weight: ${fontWeight};">
+            <td data-label="Waktu">
               <div class="ts-date">${formatDate(n.timestamp)}</div>
               <div class="ts-time">${formatTime(n.timestamp)}</div>
             </td>
-            <td><span class="machine-link">${n.machine_id}</span></td>
-            <td>${n.failure_type}</td>
-            <td><span class="badge badge-${statusClass}"><span class="badge-dot"></span>${n.status}</span></td>
-            <td class="desc-cell">${n.anomaly_description}</td>
-            <td class="desc-cell">${n.recommended_action}</td>
-            <td><span class="action-badge ${actionClass}">${n.action_status}</span></td>
+            <td data-label="ID Mesin"><span class="machine-link">${n.machine_id}</span></td>
+            <td data-label="Kerusakan">${n.failure_type}</td>
+            <td data-label="Status"><span class="badge badge-${statusClass}"><span class="badge-dot"></span>${n.status}</span></td>
+            <td class="desc-cell" data-label="Anomali">${n.anomaly_description}</td>
+            <td class="desc-cell" data-label="Rekomendasi">${n.recommended_action}</td>
+            <td data-label="Tindakan">
+              <span class="action-badge ${actionClass}">${n.action_status}</span>
+              ${readAction}
+            </td>
           </tr>
         `;
       }).join('');
+    }
+
+    async function markAsRead(id, event) {
+      event.stopPropagation();
+      try {
+        await api.post(`/notifications/${id}/read`);
+        loadNotifications(); // Reload the table
+      } catch (err) {
+        console.error('Failed to mark as read', err);
+        alert('Gagal menandai sudah dibaca.');
+      }
     }
 
     function renderPagination(p) {

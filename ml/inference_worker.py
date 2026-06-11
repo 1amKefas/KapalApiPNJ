@@ -1,5 +1,6 @@
 import os
 import time
+import shutil
 import numpy as np
 import pandas as pd
 import psycopg2
@@ -16,16 +17,57 @@ DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "previs_db")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+INFERENCE_INTERVAL_SECONDS = int(os.getenv("ML_INFERENCE_INTERVAL_SECONDS", "10"))
 
 # 2. Load Model Keras and Scalers
-MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
-MODEL_PATH = os.path.join(MODEL_DIR, 'best_hybrid_model_v2.keras')
-PIPELINE_DIR = os.path.join(os.path.dirname(__file__), 'pipeline')
-SCALER_X_PATH = os.path.join(PIPELINE_DIR, 'scaler_X.pkl')
-SCALER_Y_PATH = os.path.join(PIPELINE_DIR, 'scaler_y.pkl')
+BASE_DIR = os.path.dirname(__file__)
 
-print(f"🤖 Loading trained AI model from {MODEL_PATH}...")
-model = tf.keras.models.load_model(MODEL_PATH)
+def first_existing_path(*paths):
+    for path in paths:
+        if os.path.exists(path):
+            return path
+    return paths[0]
+
+MODEL_PATH = first_existing_path(
+    os.path.join(BASE_DIR, 'models', 'best_hybrid_model_v2.keras'),
+    os.path.join(BASE_DIR, 'models', 'best_hybrid_model_v2.h5'),
+    os.path.join(BASE_DIR, 'best_hybrid_model_v2.keras')
+)
+SCALER_X_PATH = first_existing_path(
+    os.path.join(BASE_DIR, 'pipeline', 'scaler_X.pkl'),
+    os.path.join(BASE_DIR, 'scaler_X.pkl')
+)
+SCALER_Y_PATH = first_existing_path(
+    os.path.join(BASE_DIR, 'pipeline', 'scaler_y.pkl'),
+    os.path.join(BASE_DIR, 'scaler_y.pkl')
+)
+
+def get_keras_load_path(path):
+    """Keras 3 requires HDF5 models to use a .h5/.hdf5 extension.
+    On Windows, symlinks require admin rights so we always copy instead.
+    """
+    with open(path, 'rb') as model_file:
+        is_hdf5 = model_file.read(8) == b'\x89HDF\r\n\x1a\n'
+
+    if is_hdf5 and not path.lower().endswith(('.h5', '.hdf5')):
+        alias_path = os.path.splitext(path)[0] + '.h5'
+        if not os.path.exists(alias_path):
+            if os.name == 'nt':
+                # Windows: always copy (symlinks need admin rights)
+                shutil.copyfile(path, alias_path)
+            else:
+                try:
+                    os.symlink(os.path.basename(path), alias_path)
+                except OSError:
+                    shutil.copyfile(path, alias_path)
+        return alias_path
+
+    return path
+
+MODEL_LOAD_PATH = get_keras_load_path(MODEL_PATH)
+
+print(f"🤖 Loading trained AI model from {MODEL_LOAD_PATH}...")
+model = tf.keras.models.load_model(MODEL_LOAD_PATH, compile=False)
 scaler_X = joblib.load(SCALER_X_PATH)
 scaler_y = joblib.load(SCALER_Y_PATH)
 
@@ -93,6 +135,19 @@ def run_inference():
             df = pd.DataFrame(rows, columns=['timestamp', 'temperature', 'vibration', 'pressure', 'rpm', 'power_consumption'])
             df = df.sort_values('timestamp').reset_index(drop=True)
             df['timestamp'] = pd.to_datetime(df['timestamp'])
+            latest_telemetry_timestamp = df['timestamp'].max()
+
+            cursor.execute("""
+                SELECT timestamp FROM predictions
+                WHERE machine_id = %s
+                ORDER BY timestamp DESC
+                LIMIT 1;
+            """, (machine_id,))
+            latest_prediction_row = cursor.fetchone()
+            if latest_prediction_row:
+                latest_prediction_timestamp = pd.to_datetime(latest_prediction_row[0])
+                if latest_prediction_timestamp >= latest_telemetry_timestamp:
+                    continue
             
             # Hitung Rolling Features (Bypass Noise)
             df['temperature_roll24h_mean'] = df['temperature'].rolling(window=24, min_periods=1).mean()
@@ -147,9 +202,12 @@ def run_inference():
             # Simpan hasil prediksi
             insert_query = """
                 INSERT INTO predictions (machine_id, timestamp, rul_estimated, failure_prob, alert_level)
-                VALUES (%s, NOW(), %s, %s, %s);
+                VALUES (%s, %s, %s, %s, %s);
             """
-            cursor.execute(insert_query, (machine_id, rul_estimated, failure_prob, alert_level))
+            cursor.execute(
+                insert_query,
+                (machine_id, latest_telemetry_timestamp.to_pydatetime(), rul_estimated, failure_prob, alert_level)
+            )
             
         conn.commit()
         print("✅ Inference real-time sukses. Status Healthy/Warning/Critical telah diupdate!")
@@ -165,4 +223,4 @@ if __name__ == "__main__":
     print("🚀 PreVis AI Inference Worker is running...")
     while True:
         run_inference()
-        time.sleep(60)
+        time.sleep(INFERENCE_INTERVAL_SECONDS)
